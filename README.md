@@ -29,3 +29,57 @@ https://data.gov.ua/dataset/8e2a1cc8-20e3-49f1-b9bf-b1c0372f4834
 
 The dataset contains structured information about petitions, including submission dates, number of collected signatures, required thresholds, and status.
 
+---
+
+## Project Structure
+open_data_ai_analytics/
+│
+├── data/
+│ ├── raw/ # Original dataset (not tracked by Git)
+│ └── README.md
+│
+├── notebooks/ # Exploratory analysis
+│
+├── reports/
+│ ├── figures/ # Generated visualizations
+│ └── REPORT.md
+│
+├── src/
+│ ├── pipelines/
+│ │ ├── data_load.py
+│ │ ├── data_quality_analysis.py
+│ │ ├── data_research.py
+│ │ └── visualization.py
+│ └── (project modules)
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+
+---
+
+## Development Workflow
+
+The project was implemented using a feature-branch workflow:
+
+- `feature/data_load`
+- `feature/data_quality_analysis`
+- `feature/data_research`
+- `feature/visualization`
+
+Each feature was developed in a separate branch and merged into `main` via pull/merge requests. A controlled merge conflict was intentionally created and resolved to demonstrate Git conflict management.
+
+---
+
+## Tools Used
+
+- Python
+- Pandas
+- Matplotlib / Seaborn (for visualization)
+- Git (branching, merging, tagging)
+
+---
+
+## Release
+
+Version `v0.1.0` marks the completion of the laboratory work, including analysis modules, documentation, and changelog.
