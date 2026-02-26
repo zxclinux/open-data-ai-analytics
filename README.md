@@ -74,7 +74,7 @@ Each feature was developed in a separate branch and merged into `main` via pull/
 ## Tools Used
 
 - Python
-- Pandas
+- PandasPandas
 - Matplotlib / Seaborn (for visualization)
 - Git (branching, merging, tagging)
 
