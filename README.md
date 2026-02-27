@@ -31,33 +31,6 @@ The dataset contains structured information about petitions, including submissio
 
 ---
 
-## Project Structure
-open_data_ai_analytics/
-│
-├── data/
-│ ├── raw/ # Original dataset (not tracked by Git)
-│ └── README.md
-│
-├── notebooks/ # Exploratory analysis
-│
-├── reports/
-│ ├── figures/ # Generated visualizations
-│ └── REPORT.md
-│
-├── src/
-│ ├── pipelines/
-│ │ ├── data_load.py
-│ │ ├── data_quality_analysis.py
-│ │ ├── data_research.py
-│ │ └── visualization.py
-│ └── (project modules)
-│
-├── .gitignore
-├── LICENSE
-└── README.md
-
----
-
 ## Development Workflow
 
 The project was implemented using a feature-branch workflow:
