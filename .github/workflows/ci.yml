@@ -1,0 +1,41 @@
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Which module to run"
+        required: false
+        default: ""
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: ["data_load","data_quality_analysis","data_research","visualization"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if not selected
+        if: ${{ github.event.inputs.module != '' && matrix.module != github.event.inputs.module }}
+        run: |
+          echo "Skipping ${{ matrix.module }}"
+          exit 0
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run ${{ matrix.module }}
+        run: python src/pipelines/${{ matrix.module }}.py
+
+      - name: Upload artifacts for ${{ matrix.module }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.module }}
+          path: reports/${{ matrix.module }}
