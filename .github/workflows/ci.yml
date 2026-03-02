@@ -16,8 +16,6 @@ jobs:
   prepare_data:
     name: Prepare data
     runs-on: ubuntu-latest
-    outputs:
-      raw_data: ${{ steps.upload.outputs.artifact-name }}
 
     steps:
       - name: Checkout repository
@@ -33,14 +31,12 @@ jobs:
 
       - name: Download dataset
         run: |
-          wget "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv" \
-            -O data/raw/petitions.csv
+          wget "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv" -O data/raw/petitions.csv
 
-      - name: Upload raw data
-        id: upload
+      - name: Upload raw data CSV
         uses: actions/upload-artifact@v4
         with:
-          name: raw-data
+          name: petitions-csv
           path: data/raw/petitions.csv
 
   data_load:
@@ -50,29 +46,29 @@ jobs:
     if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_load' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download raw data
+      - name: Download CSV
         uses: actions/download-artifact@v4
         with:
-          name: raw-data
-          path: data/raw
+          name: petitions-csv
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute data_load
-        run: |
-          python -m src.pipelines.data_load data/raw/petitions.csv
+      - name: Run data_load
+        run: python -m src.pipelines.data_load data/raw/petitions.csv
 
-      - name: Upload data_load artifacts
+      - name: Upload data_load CSVs and logs
         uses: actions/upload-artifact@v4
         with:
-          name: data_load-results
-          path: reports/data_load
+          name: data_load-files
+          path: |
+            data_load_output/*.csv
+            data_load_output/*.log
 
   data_quality_analysis:
     name: data_quality_analysis
@@ -81,29 +77,29 @@ jobs:
     if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_quality_analysis' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download raw data
+      - name: Download CSV
         uses: actions/download-artifact@v4
         with:
-          name: raw-data
-          path: data/raw
+          name: petitions-csv
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute data_quality_analysis
-        run: |
-          python -m src.pipelines.data_quality_analysis data/raw/petitions.csv
+      - name: Run data_quality_analysis
+        run: python -m src.pipelines.data_quality_analysis data/raw/petitions.csv
 
-      - name: Upload results
+      - name: Upload quality CSVs and logs
         uses: actions/upload-artifact@v4
         with:
-          name: quality-results
-          path: reports/data_quality_analysis
+          name: quality-files
+          path: |
+            quality_output/*.csv
+            quality_output/*.log
 
   data_research:
     name: data_research
@@ -112,29 +108,29 @@ jobs:
     if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_research' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download raw data
+      - name: Download CSV
         uses: actions/download-artifact@v4
         with:
-          name: raw-data
-          path: data/raw
+          name: petitions-csv
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute data_research
-        run: |
-          python -m src.pipelines.data_research data/raw/petitions.csv
+      - name: Run data_research
+        run: python -m src.pipelines.data_research data/raw/petitions.csv
 
-      - name: Upload results
+      - name: Upload research CSVs and logs
         uses: actions/upload-artifact@v4
         with:
-          name: research-results
-          path: reports/data_research
+          name: research-files
+          path: |
+            research_output/*.csv
+            research_output/*.log
 
   visualization:
     name: visualization
@@ -143,26 +139,27 @@ jobs:
     if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'visualization' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Download raw data
+      - name: Download CSV
         uses: actions/download-artifact@v4
         with:
-          name: raw-data
-          path: data/raw
+          name: petitions-csv
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute visualization
-        run: |
-          python -m src.pipelines.visualization data/raw/petitions.csv
+      - name: Run visualization
+        run: python -m src.pipelines.visualization data/raw/petitions.csv
 
-      - name: Upload results
+      - name: Upload plots and logs
         uses: actions/upload-artifact@v4
         with:
-          name: visualization-results
-          path: reports/visualization
+          name: visualization-files
+          path: |
+            visualization_output/*.png
+            visualization_output/*.csv
+            visualization_output/*.log
