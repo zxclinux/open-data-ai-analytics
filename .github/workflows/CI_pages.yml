@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Specify module to run (optional)"
+        required: false
+        default: ""
+
+jobs:
+  prepare_data:
+    name: Prepare data
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Create data directory
+        run: mkdir -p data/raw
+
+      - name: Download dataset
+        run: |
+          wget "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv" \
+            -O data/raw/petitions.csv
+
+      - name: Upload raw data
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-data
+          path: data/raw/petitions.csv
+
+  visualization:
+    name: Run visualization
+    needs: prepare_data
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'visualization' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download raw data
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-data
+          path: data/raw
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute visualization
+        run: |
+          python -m src.pipelines.visualization data/raw/petitions.csv
+
+      - name: Upload visualization results
+        uses: actions/upload-artifact@v4
+        with:
+          name: visualization-results
+          path: reports/figures
+
+  deploy_pages:
+    name: Deploy to GitHub Pages
+    needs: visualization
+    runs-on: ubuntu-latest
+    # this ensures we only deploy from the main branch
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download visualization results
+        uses: actions/download-artifact@v4
+        with:
+          name: visualization-results
+          path: site/
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Show published URL
+        run: echo "GitHub Pages deployed to ${{ steps.deployment.outputs.page_url }}"
