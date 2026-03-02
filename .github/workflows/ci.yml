@@ -33,7 +33,7 @@ jobs:
 
       - name: Download dataset
         run: |
-          wget "https://data.gov.ua/dataset/8e2a1cc8-20e3-49f1-b9bf-b1c0372f4834/resource/3a7e8c48-3411-4b50-b45b-dd113fb6fce4/download/petitions.csv" \
+          wget "https://data.gov.ua/dataset/c89a8203-8f3a-486c-8117-9ca0dcd962a2/resource/858a5c20-872f-41c2-a1d5-394f4a894bc1/download/petitions.csv" \
             -O data/raw/petitions.csv || true
 
       - name: Run data_load
