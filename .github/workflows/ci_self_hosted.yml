@@ -33,8 +33,7 @@ jobs:
 
       - name: Download dataset
         run: |
-          wget "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv" \
-            -O data/raw/petitions.csv
+          curl.exe -L -o data/raw/petitions.csv "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv"
       - name: Upload raw data
         id: upload
         uses: actions/upload-artifact@v4
