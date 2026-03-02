@@ -65,54 +65,6 @@ jobs:
         run: |
           python -m src.pipelines.data_load data/raw/petitions.csv
 
-  data_quality_analysis:
-    name: data_quality_analysis
-    needs: prepare_data
-    runs-on: self-hosted
-    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_quality_analysis' }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download raw data
-        uses: actions/download-artifact@v4
-        with:
-          name: raw-data
-          path: data/raw
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Execute data_quality_analysis
-        run: |
-          python -m src.pipelines.data_quality_analysis data/raw/petitions.csv
-
-  data_research:
-    name: data_research
-    needs: prepare_data
-    runs-on: self-hosted
-    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_research' }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download raw data
-        uses: actions/download-artifact@v4
-        with:
-          name: raw-data
-          path: data/raw
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Execute data_research
-        run: |
-          python -m src.pipelines.data_research data/raw/petitions.csv
-
   visualization:
     name: visualization
     needs: prepare_data
