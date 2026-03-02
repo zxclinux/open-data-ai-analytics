@@ -1,3 +1,5 @@
+name: CI
+
 on:
   push:
     branches: ["main"]
@@ -6,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       module:
-        description: "Which module to run"
+        description: "Optional specific module to run"
         required: false
         default: ""
 
@@ -15,27 +17,70 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: ["data_load","data_quality_analysis","data_research","visualization"]
+        module: [
+          "data_load",
+          "data_quality_analysis",
+          "data_research",
+          "visualization"
+        ]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Skip if not selected
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Prepare data directory
+        run: mkdir -p data/raw
+
+      - name: Skip this module if not selected
         if: ${{ github.event.inputs.module != '' && matrix.module != github.event.inputs.module }}
         run: |
           echo "Skipping ${{ matrix.module }}"
           exit 0
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run ${{ matrix.module }}
-        run: python src/pipelines/${{ matrix.module }}.py
+      - name: Download dataset
+        if: ${{ matrix.module == 'data_load' }}
+        run: |
+          echo "Downloading dataset for data_load"
+          wget "https://data.gov.ua/dataset/8e2a1cc8-20e3-49f1-b9bf-b1c0372f4834/resource/3a7e8c48-3411-4b50-b45b-dd113fb6fce4/download/petitions.csv" \
+            -O data/raw/petitions.csv || true
 
-      - name: Upload artifacts for ${{ matrix.module }}
+      - name: Run data_load
+        if: ${{ matrix.module == 'data_load' }}
+        run: |
+          python -m src.pipelines.data_load \
+            data/raw/petitions.csv
+
+      - name: Run data_quality_analysis
+        if: ${{ matrix.module == 'data_quality_analysis' }}
+        run: |
+          python -m src.pipelines.data_quality_analysis \
+            data/raw/petitions.csv
+
+      - name: Run data_research
+        if: ${{ matrix.module == 'data_research' }}
+        run: |
+          python -m src.pipelines.data_research \
+            data/raw/petitions.csv
+
+      - name: Run visualization
+        if: ${{ matrix.module == 'visualization' }}
+        run: |
+          python -m src.pipelines.visualization \
+            data/raw/petitions.csv
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.module }}
-          path: reports/${{ matrix.module }}
+          name: results-${{ matrix.module }}
+          path: |
+            reports/${{ matrix.module }}
