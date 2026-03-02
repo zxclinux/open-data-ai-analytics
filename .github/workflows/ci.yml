@@ -13,58 +13,89 @@ on:
         default: ""
 
 jobs:
-  data_load:
+  prepare_data:
+    name: Prepare data
     runs-on: ubuntu-latest
+    outputs:
+      raw_data: ${{ steps.upload.outputs.artifact-name }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Make data dir
+      - name: Create data directory
         run: mkdir -p data/raw
-
-      - name: Install deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
 
       - name: Download dataset
         run: |
-          wget "https://data.gov.ua/dataset/c89a8203-8f3a-486c-8117-9ca0dcd962a2/resource/858a5c20-872f-41c2-a1d5-394f4a894bc1/download/petitions.csv" \
-            -O data/raw/petitions.csv || true
+          wget "https://data.gov.ua/dataset/dbfff194-ca0c-47e8-9434-6670236894a1/resource/2af4e39b-d6a3-4c1c-a5a8-f25597326f4d/download/petitions.csv" \
+            -O data/raw/petitions.csv
 
-      - name: Run data_load
-        run: |
-          python -m src.pipelines.data_load data/raw/petitions.csv
-
-      - name: Upload data artifact
+      - name: Upload raw data
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: raw-data
           path: data/raw/petitions.csv
 
-  data_quality_analysis:
-    needs: data_load
+  data_load:
+    name: Run data_load
+    needs: prepare_data
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_load' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Download data
+      - name: Download raw data
         uses: actions/download-artifact@v4
         with:
           name: raw-data
           path: data/raw
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run data_quality_analysis
+      - name: Execute data_load
+        run: |
+          python -m src.pipelines.data_load data/raw/petitions.csv
+
+      - name: Upload data_load artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: data_load-results
+          path: reports/data_load
+
+  data_quality_analysis:
+    name: data_quality_analysis
+    needs: prepare_data
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_quality_analysis' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download raw data
+        uses: actions/download-artifact@v4
+        with:
+          name: raw-data
+          path: data/raw
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Execute data_quality_analysis
         run: |
           python -m src.pipelines.data_quality_analysis data/raw/petitions.csv
 
@@ -75,24 +106,27 @@ jobs:
           path: reports/data_quality_analysis
 
   data_research:
-    needs: data_load
+    name: data_research
+    needs: prepare_data
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'data_research' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Download data
+      - name: Download raw data
         uses: actions/download-artifact@v4
         with:
           name: raw-data
           path: data/raw
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run data_research
+      - name: Execute data_research
         run: |
           python -m src.pipelines.data_research data/raw/petitions.csv
 
@@ -103,24 +137,27 @@ jobs:
           path: reports/data_research
 
   visualization:
-    needs: data_load
+    name: visualization
+    needs: prepare_data
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.module == '' || github.event.inputs.module == 'visualization' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Download data
+      - name: Download raw data
         uses: actions/download-artifact@v4
         with:
           name: raw-data
           path: data/raw
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run visualization
+      - name: Execute visualization
         run: |
           python -m src.pipelines.visualization data/raw/petitions.csv
 
