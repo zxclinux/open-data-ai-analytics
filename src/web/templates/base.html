@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Open Data Analytics{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; }
+    nav { background: #1a1a2e; padding: .8rem 2rem; display: flex; gap: 1.5rem; align-items: center; }
+    nav a { color: #e0e0e0; text-decoration: none; font-size: .95rem; }
+    nav a:hover, nav a.active { color: #fff; border-bottom: 2px solid #4fc3f7; }
+    nav .brand { font-weight: 700; font-size: 1.1rem; color: #4fc3f7; margin-right: auto; }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { margin-bottom: 1rem; font-size: 1.6rem; }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .5rem .7rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { background: #f0f4f8; font-weight: 600; }
+    tr:hover td { background: #f9fbfd; }
+    .badge { display: inline-block; padding: .15rem .5rem; border-radius: 4px; font-size: .8rem; }
+    .badge-ok { background: #c8e6c9; color: #2e7d32; }
+    .badge-no { background: #ffcdd2; color: #c62828; }
+    .pagination { display: flex; gap: .5rem; margin-top: 1rem; }
+    .pagination a { padding: .4rem .8rem; border: 1px solid #ccc; border-radius: 4px; text-decoration: none; color: #333; }
+    .pagination a.current { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .stat-box { background: #fff; border-radius: 8px; padding: 1rem; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .stat-box .value { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; }
+    .stat-box .label { font-size: .85rem; color: #666; }
+    .chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 1.5rem; }
+    .chart-grid img { width: 100%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .kv-table td:first-child { font-weight: 600; width: 40%; }
+    .error { background: #ffcdd2; padding: 1rem; border-radius: 6px; color: #b71c1c; }
+    .btn { display: inline-block; padding: .5rem 1.2rem; border: none; border-radius: 6px; font-size: .9rem; cursor: pointer; text-decoration: none; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-green { background: #2e7d32; color: #fff; }
+    .btn-blue { background: #1565c0; color: #fff; }
+    .btn-red { background: #c62828; color: #fff; }
+    .btn-sm { padding: .35rem .8rem; font-size: .82rem; }
+    .form-row { display: flex; gap: .6rem; align-items: end; flex-wrap: wrap; margin-bottom: .8rem; }
+    .form-group { display: flex; flex-direction: column; gap: .2rem; }
+    .form-group label { font-size: .8rem; font-weight: 600; color: #555; }
+    .form-group input, .form-group select { padding: .4rem .6rem; border: 1px solid #ccc; border-radius: 4px; font-size: .88rem; }
+    .result-box { margin-top: 1rem; max-height: 350px; overflow: auto; background: #1a1a2e; color: #e0e0e0; border-radius: 6px; padding: 1rem; font-family: monospace; font-size: .85rem; white-space: pre-wrap; display: none; }
+    .spinner { display: none; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #1a1a2e; border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; top: 1rem; right: 1rem; padding: .8rem 1.2rem; border-radius: 6px; color: #fff; font-size: .9rem; z-index: 999; opacity: 0; transition: opacity .3s; }
+    .toast.show { opacity: 1; }
+    .toast-ok { background: #2e7d32; }
+    .toast-err { background: #c62828; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span class="brand">Open Data Analytics</span>
+    <a href="/">Home</a>
+    <a href="/ui/petitions">Petitions</a>
+    <a href="/ui/quality">Quality</a>
+    <a href="/ui/research">Research</a>
+    <a href="/ui/charts">Charts</a>
+  </nav>
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

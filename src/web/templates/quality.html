@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Quality — Open Data Analytics{% endblock %}
+{% block content %}
+<h1>Data Quality Analysis</h1>
+
+{% if data.get("error") %}
+  <div class="error">{{ data.error }}</div>
+{% else %}
+  <div class="stat-grid">
+    <div class="stat-box"><div class="value">{{ data.rows }}</div><div class="label">Total rows</div></div>
+    {% if data.numeric %}
+    <div class="stat-box"><div class="value">{{ data.numeric.min }}</div><div class="label">Min signatures</div></div>
+    <div class="stat-box"><div class="value">{{ data.numeric.max }}</div><div class="label">Max signatures</div></div>
+    <div class="stat-box"><div class="value">{{ data.numeric.mean }}</div><div class="label">Mean</div></div>
+    <div class="stat-box"><div class="value">{{ data.numeric.median }}</div><div class="label">Median</div></div>
+    {% endif %}
+    {% if data.answer_stats %}
+    <div class="stat-box"><div class="value">{{ data.answer_stats.with_answer_pct }}%</div><div class="label">With answer</div></div>
+    {% endif %}
+  </div>
+
+  {% if data.date_range %}
+  <div class="card">
+    <h2>Date range</h2>
+    <p>{{ data.date_range.min }} &mdash; {{ data.date_range.max }}</p>
+  </div>
+  {% endif %}
+
+  {% if data.by_year %}
+  <div class="card">
+    <h2>By year</h2>
+    <table class="kv-table">
+      {% for year, cnt in data.by_year.items() %}
+      <tr><td>{{ year }}</td><td>{{ cnt }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  {% if data.kind %}
+  <div class="card">
+    <h2>Top kinds</h2>
+    <table class="kv-table">
+      {% for k, v in data.kind.items() %}
+      <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  {% if data.status %}
+  <div class="card">
+    <h2>Status distribution</h2>
+    <table class="kv-table">
+      {% for s, cnt in data.status.items() %}
+      <tr><td>{{ s }}</td><td>{{ cnt }}</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
