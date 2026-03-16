@@ -63,7 +63,7 @@ jobs:
 
       - name: Execute visualization
         run: |
-          python -m src.pipelines.visualization data/raw/petitions.csv
+          python -m src.visualization.visualization data/raw/petitions.csv
 
       - name: Upload visualization results
         uses: actions/upload-artifact@v4

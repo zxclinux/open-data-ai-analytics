@@ -67,7 +67,7 @@ jobs:
           pip install -r requirements.txt
       - name: Execute data_load
         run: |
-          python -m src.pipelines.data_load data/raw/petitions.csv
+          python -m src.data_load.data_load data/raw/petitions.csv
 
   data_quality_analysis:
     name: data_quality_analysis
@@ -91,7 +91,7 @@ jobs:
           pip install -r requirements.txt
       - name: Execute data_quality_analysis
         run: |
-          python -m src.pipelines.data_quality_analysis data/raw/petitions.csv
+          python -m src.data_quality_analysis.data_quality_analysis data/raw/petitions.csv
 
   data_research:
     name: data_research
@@ -115,7 +115,7 @@ jobs:
           pip install -r requirements.txt
       - name: Execute data_research
         run: |
-          python -m src.pipelines.data_research data/raw/petitions.csv
+          python -m src.data_research.data_research data/raw/petitions.csv
 
   visualization:
     name: visualization
@@ -139,7 +139,7 @@ jobs:
           pip install -r requirements.txt
       - name: Execute visualization
         run: |
-          python -m src.pipelines.visualization data/raw/petitions.csv
+          python -m src.visualization.visualization data/raw/petitions.csv
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
