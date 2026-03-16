@@ -1,0 +1,85 @@
+services:
+  data-load:
+    networks:
+      - app
+    build:
+      context: ..
+      dockerfile: src/data_load/Dockerfile
+    ports:
+      - "8001:8000"
+    volumes:
+      - data:/app/data
+    environment:
+      - OUTPUT_PATH=/app/data/raw/petitions.csv
+      - DB_PATH=/app/data/petitions.db
+
+  data-quality:
+    networks:
+      - app
+    build:
+      context: ..
+      dockerfile: src/data_quality_analysis/Dockerfile
+    ports:
+      - "8002:8000"
+    volumes:
+      - data:/app/data
+    environment:
+      - DATA_RAW_PATH=/app/data/raw/petitions.csv
+
+  data-research:
+    networks:
+      - app
+    build:
+      context: ..
+      dockerfile: src/data_research/Dockerfile
+    ports:
+      - "8003:8000"
+    volumes:
+      - data:/app/data
+    environment:
+      - DATA_RAW_PATH=/app/data/raw/petitions.csv
+
+  visualization:
+    networks:
+      - app
+    build:
+      context: ..
+      dockerfile: src/visualization/Dockerfile
+    ports:
+      - "8004:8000"
+    volumes:
+      - data:/app/data
+      - reports:/app/reports
+    environment:
+      - DATA_RAW_PATH=/app/data/raw/petitions.csv
+      - REPORTS_FIGURES_PATH=/app/reports/figures
+
+  web:
+    networks:
+      - app
+    build:
+      context: ..
+      dockerfile: src/web/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - data:/app/data
+    depends_on:
+      - data-load
+      - data-quality
+      - data-research
+      - visualization
+    environment:
+      - DB_PATH=/app/data/petitions.db
+      - DATA_LOAD_URL=http://data-load:8000
+      - QUALITY_URL=http://data-quality:8000
+      - RESEARCH_URL=http://data-research:8000
+      - VIZ_URL=http://visualization:8000
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  data:
+  reports:
