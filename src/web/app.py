@@ -22,7 +22,11 @@ app = FastAPI(title="Open Data Analytics", version="1.0.0")
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        name="index.html",
+        request=request,
+        context={"request": request},
+    )
 
 
 @app.get("/ui/petitions", response_class=HTMLResponse)
@@ -35,10 +39,17 @@ async def ui_petitions(request: Request,
         total = petitions_count()
     except Exception:
         rows, total = [], 0
-    return templates.TemplateResponse("petitions.html", {
-        "request": request, "rows": rows, "total": total,
-        "page": page, "limit": limit,
-    })
+    return templates.TemplateResponse(
+        name="petitions.html",
+        request=request,
+        context={
+            "request": request,
+            "rows": rows,
+            "total": total,
+            "page": page,
+            "limit": limit,
+        },
+    )
 
 
 @app.get("/ui/quality", response_class=HTMLResponse)
@@ -49,7 +60,11 @@ async def ui_quality(request: Request):
             data = r.json() if r.status_code == 200 else {"error": r.text}
         except httpx.RequestError as e:
             data = {"error": str(e)}
-    return templates.TemplateResponse("quality.html", {"request": request, "data": data})
+    return templates.TemplateResponse(
+        name="quality.html",
+        request=request,
+        context={"request": request, "data": data},
+    )
 
 
 @app.get("/ui/research", response_class=HTMLResponse)
@@ -60,7 +75,11 @@ async def ui_research(request: Request):
             data = r.json() if r.status_code == 200 else {"error": r.text}
         except httpx.RequestError as e:
             data = {"error": str(e)}
-    return templates.TemplateResponse("research.html", {"request": request, "data": data})
+    return templates.TemplateResponse(
+        name="research.html",
+        request=request,
+        context={"request": request, "data": data},
+    )
 
 
 @app.get("/ui/charts", response_class=HTMLResponse)
@@ -71,9 +90,11 @@ async def ui_charts(request: Request):
             charts = r.json().get("available", []) if r.status_code == 200 else []
         except httpx.RequestError:
             charts = []
-    return templates.TemplateResponse("charts.html", {
-        "request": request, "charts": charts, "viz_url": VIZ_URL,
-    })
+    return templates.TemplateResponse(
+        name="charts.html",
+        request=request,
+        context={"request": request, "charts": charts, "viz_url": VIZ_URL},
+    )
 
 @app.get("/api/petitions")
 def api_petitions(limit: int = Query(50, ge=1, le=500),
