@@ -48,13 +48,13 @@ variable "subnet_prefix" {
 variable "web_port" {
   description = "Public web port exposed by NSG and docker compose override."
   type        = number
-  default     = 8080
+  default     = 8000
 }
 
 variable "repo_url" {
   description = "Git repository URL cloned by cloud-init."
   type        = string
-  default     = "https://github.com/dmitr/open-data-ai-analytics.git"
+  default     = "https://github.com/zxclinux/open-data-ai-analytics.git"
 }
 
 variable "repo_branch" {
