@@ -51,6 +51,18 @@ variable "web_port" {
   default     = 8000
 }
 
+variable "grafana_port" {
+  description = "Public Grafana port exposed by NSG."
+  type        = number
+  default     = 3000
+}
+
+variable "prometheus_port" {
+  description = "Public Prometheus port exposed by NSG."
+  type        = number
+  default     = 9090
+}
+
 variable "repo_url" {
   description = "Git repository URL cloned by cloud-init."
   type        = string

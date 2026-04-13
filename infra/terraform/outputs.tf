@@ -23,6 +23,16 @@ output "app_url" {
   value       = "http://${azurerm_public_ip.this.ip_address}:${var.web_port}"
 }
 
+output "grafana_url" {
+  description = "Grafana URL."
+  value       = "http://${azurerm_public_ip.this.ip_address}:${var.grafana_port}"
+}
+
+output "prometheus_url" {
+  description = "Prometheus URL."
+  value       = "http://${azurerm_public_ip.this.ip_address}:${var.prometheus_port}"
+}
+
 output "validation_steps" {
   description = "Post-deploy checks for SSH, web, and containers."
   value = [

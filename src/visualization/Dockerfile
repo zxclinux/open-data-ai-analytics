@@ -1,4 +1,4 @@
-# Build from repo root: docker build -f src/visualization/Dockerfile .
+
 FROM python:3.11-slim
 
 WORKDIR /app

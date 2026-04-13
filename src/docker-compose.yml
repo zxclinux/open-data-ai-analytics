@@ -76,6 +76,54 @@ services:
       - RESEARCH_URL=http://data-research:8000
       - VIZ_URL=http://visualization:8000
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    networks:
+      - app
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      - web
+      - node-exporter
+      - cadvisor
+
+  grafana:
+    image: grafana/grafana-oss:11.2.0
+    networks:
+      - app
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    networks:
+      - app
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro,rslave
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    networks:
+      - app
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
 networks:
   app:
     driver: bridge
@@ -83,3 +131,5 @@ networks:
 volumes:
   data:
   reports:
+  prometheus-data:
+  grafana-data:

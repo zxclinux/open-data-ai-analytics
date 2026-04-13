@@ -4,6 +4,7 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.web.db_queries import (
     petitions_list, petitions_count, top_petitions,
@@ -19,6 +20,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 app = FastAPI(title="Open Data Analytics", version="1.0.0")
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
