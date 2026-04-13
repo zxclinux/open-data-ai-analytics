@@ -4,3 +4,4 @@ fastapi
 uvicorn
 httpx
 jinja2
+prometheus-fastapi-instrumentator
