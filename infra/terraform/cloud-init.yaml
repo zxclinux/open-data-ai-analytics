@@ -7,40 +7,43 @@ packages:
   - curl
   - git
   - gnupg
-  - lsb-release
 
 runcmd:
+  # 1. Install k3s
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --disable=servicelb" sh -
+  - systemctl enable k3s
+  - until kubectl get nodes 2>/dev/null | grep -q " Ready"; do sleep 5; done
+
+  # 2. Expose kubeconfig for admin user
+  - mkdir -p /home/${admin_username}/.kube
+  - cp /etc/rancher/k3s/k3s.yaml /home/${admin_username}/.kube/config
+  - chown ${admin_username}:${admin_username} /home/${admin_username}/.kube/config
+  - chmod 600 /home/${admin_username}/.kube/config
+
+  # 3. Install Docker (needed to build the image)
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc
   - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
   - apt-get update
-  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
   - systemctl enable --now docker
-  - usermod -aG docker ${admin_username}
+
+  # 4. Clone repo and build web image (build context = repo root per src/web/Dockerfile)
   - rm -rf /opt/open-data-ai-analytics
-  - |
-    bash -lc 'set -euo pipefail
-    REPO_DIR="/opt/open-data-ai-analytics"
-    REPO_URL="${repo_url}"
-    REPO_BRANCH="${repo_branch}"
+  - git clone --depth 1 --branch ${repo_branch} ${repo_url} /opt/open-data-ai-analytics
+  - docker build -f /opt/open-data-ai-analytics/src/web/Dockerfile -t web:latest /opt/open-data-ai-analytics
 
-    if ! git clone --depth 1 --branch "$REPO_BRANCH" "$REPO_URL" "$REPO_DIR"; then
-      echo "Primary repo clone failed, trying public fallback..."
-      git clone --depth 1 --branch "$REPO_BRANCH" "https://github.com/zxclinux/open-data-ai-analytics.git" "$REPO_DIR"
-    fi
+  # 5. Import image into k3s containerd (k3s does not share Docker's image store)
+  - docker save web:latest | k3s ctr images import -
 
-    test -f "$REPO_DIR/src/docker-compose.yml"
+  # 6. Install ArgoCD
+  - kubectl create namespace argocd
+  - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - until kubectl -n argocd get deployment argocd-server 2>/dev/null | grep -q "1/1"; do sleep 15; done
 
-    cat > "$REPO_DIR/src/docker-compose.override.yml" <<EOF
-    services:
-      web:
-        ports:
-          - "${web_port}:8000"
-    EOF
+  # 7. Expose ArgoCD UI on NodePort 30443
+  - kubectl -n argocd patch svc argocd-server -p '{"spec":{"type":"NodePort","ports":[{"port":443,"targetPort":8080,"nodePort":30443,"protocol":"TCP","name":"https"}]}}'
 
-    /usr/bin/docker compose \
-      -f "$REPO_DIR/src/docker-compose.yml" \
-      -f "$REPO_DIR/src/docker-compose.override.yml" \
-      -p open-data-ai up -d --build
-    '
+  # 8. Apply ArgoCD Application — triggers auto-sync of k8s/ manifests
+  - kubectl apply -f /opt/open-data-ai-analytics/gitops/argocd/application.yaml
