@@ -17,9 +17,9 @@ variable "vm_name" {
 }
 
 variable "vm_size" {
-  description = "VM size (student-friendly by default)."
+  description = "VM size. k3s + ArgoCD requires at least 4 GiB RAM."
   type        = string
-  default     = "Standard_B2ts_v2"
+  default     = "Standard_B2s_v2"
 }
 
 variable "admin_username" {
@@ -46,21 +46,15 @@ variable "subnet_prefix" {
 }
 
 variable "web_port" {
-  description = "Public web port exposed by NSG and docker compose override."
+  description = "NodePort exposed by the web Service and opened in NSG."
   type        = number
-  default     = 8000
+  default     = 30080
 }
 
-variable "grafana_port" {
-  description = "Public Grafana port exposed by NSG."
+variable "argocd_port" {
+  description = "ArgoCD server NodePort for UI access."
   type        = number
-  default     = 3000
-}
-
-variable "prometheus_port" {
-  description = "Public Prometheus port exposed by NSG."
-  type        = number
-  default     = 9090
+  default     = 30443
 }
 
 variable "repo_url" {
@@ -72,5 +66,5 @@ variable "repo_url" {
 variable "repo_branch" {
   description = "Git branch checked out by cloud-init."
   type        = string
-  default     = "main"
+  default     = "monitoring"
 }

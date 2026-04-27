@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: open-data-ai
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/zxclinux/open-data-ai-analytics.git
+    targetRevision: monitoring
+    path: gitops/app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

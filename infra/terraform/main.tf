@@ -70,25 +70,13 @@ resource "azurerm_network_security_group" "this" {
   }
 
   security_rule {
-    name                       = "AllowGrafana"
+    name                       = "AllowArgoCD"
     priority                   = 120
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = tostring(var.grafana_port)
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "AllowPrometheus"
-    priority                   = 130
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = tostring(var.prometheus_port)
+    destination_port_range     = tostring(var.argocd_port)
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -125,7 +113,6 @@ resource "azurerm_linux_virtual_machine" "this" {
     admin_username = var.admin_username
     repo_url       = var.repo_url
     repo_branch    = var.repo_branch
-    web_port       = var.web_port
   }))
 
   admin_ssh_key {
