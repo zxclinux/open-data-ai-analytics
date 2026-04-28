@@ -10,17 +10,19 @@ packages:
 
 runcmd:
   # 1. Install k3s
-  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --disable=servicelb" sh -
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--disable=traefik --disable=servicelb --write-kubeconfig-mode=644" sh -
   - systemctl enable k3s
-  - until kubectl get nodes 2>/dev/null | grep -q " Ready"; do sleep 5; done
+  - timeout 120 bash -c 'until kubectl get nodes 2>/dev/null | grep -q " Ready"; do sleep 5; done'
+  - sleep 20
 
   # 2. Expose kubeconfig for admin user
   - mkdir -p /home/${admin_username}/.kube
   - cp /etc/rancher/k3s/k3s.yaml /home/${admin_username}/.kube/config
-  - chown ${admin_username}:${admin_username} /home/${admin_username}/.kube/config
+  - chown -R ${admin_username}:${admin_username} /home/${admin_username}/.kube
   - chmod 600 /home/${admin_username}/.kube/config
+  - echo 'export KUBECONFIG=$HOME/.kube/config' >> /home/${admin_username}/.bashrc
 
-  # 3. Install Docker (needed to build the image)
+  # 3. Install Docker
   - install -m 0755 -d /etc/apt/keyrings
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   - chmod a+r /etc/apt/keyrings/docker.asc
@@ -28,22 +30,23 @@ runcmd:
   - apt-get update
   - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
   - systemctl enable --now docker
+  - timeout 60 bash -c 'until docker info 2>/dev/null; do sleep 3; done'
 
-  # 4. Clone repo and build web image (build context = repo root per src/web/Dockerfile)
+  # 4. Clone repo and build web image
   - rm -rf /opt/open-data-ai-analytics
   - git clone --depth 1 --branch ${repo_branch} ${repo_url} /opt/open-data-ai-analytics
   - docker build -f /opt/open-data-ai-analytics/src/web/Dockerfile -t web:latest /opt/open-data-ai-analytics
 
-  # 5. Import image into k3s containerd (k3s does not share Docker's image store)
+  # 5. Import image into k3s containerd
   - docker save web:latest | k3s ctr images import -
 
   # 6. Install ArgoCD
-  - kubectl create namespace argocd
-  - kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  - until kubectl -n argocd get deployment argocd-server 2>/dev/null | grep -q "1/1"; do sleep 15; done
+  - kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+  - kubectl apply -n argocd --validate=false -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - timeout 600 bash -c 'until kubectl -n argocd get deployment argocd-server 2>/dev/null | grep -q "1/1"; do sleep 15; done'
 
   # 7. Expose ArgoCD UI on NodePort 30443
   - kubectl -n argocd patch svc argocd-server -p '{"spec":{"type":"NodePort","ports":[{"port":443,"targetPort":8080,"nodePort":30443,"protocol":"TCP","name":"https"}]}}'
 
-  # 8. Apply ArgoCD Application — triggers auto-sync of k8s/ manifests
+  # 8. Apply ArgoCD Application
   - kubectl apply -f /opt/open-data-ai-analytics/gitops/argocd/application.yaml

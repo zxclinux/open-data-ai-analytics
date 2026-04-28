@@ -19,7 +19,7 @@ variable "vm_name" {
 variable "vm_size" {
   description = "VM size. k3s + ArgoCD requires at least 4 GiB RAM."
   type        = string
-  default     = "Standard_B2s_v2"
+  default     = "Standard_B4s_v2"
 }
 
 variable "admin_username" {
