@@ -66,5 +66,5 @@ variable "repo_url" {
 variable "repo_branch" {
   description = "Git branch checked out by cloud-init."
   type        = string
-  default     = "monitoring"
+  default     = "main"
 }
