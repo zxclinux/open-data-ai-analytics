@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-research
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-research
+  template:
+    metadata:
+      labels:
+        app: data-research
+    spec:
+      containers:
+        - name: data-research
+          image: data-research:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATA_RAW_PATH
+              value: /app/data/raw/petitions.csv
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          hostPath:
+            path: /opt/app-data
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-research
+  namespace: default
+spec:
+  selector:
+    app: data-research
+  ports:
+    - port: 8000
+      targetPort: 8000

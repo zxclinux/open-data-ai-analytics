@@ -32,12 +32,20 @@ runcmd:
   - systemctl enable --now docker
   - timeout 60 bash -c 'until docker info 2>/dev/null; do sleep 3; done'
 
-  # 4. Clone repo and build web image
+  # 4. Clone repo and build all custom images
   - rm -rf /opt/open-data-ai-analytics
   - git clone --depth 1 --branch ${repo_branch} ${repo_url} /opt/open-data-ai-analytics
+  - docker build -f /opt/open-data-ai-analytics/src/data_load/Dockerfile -t data-load:latest /opt/open-data-ai-analytics
+  - docker build -f /opt/open-data-ai-analytics/src/data_quality_analysis/Dockerfile -t data-quality:latest /opt/open-data-ai-analytics
+  - docker build -f /opt/open-data-ai-analytics/src/data_research/Dockerfile -t data-research:latest /opt/open-data-ai-analytics
+  - docker build -f /opt/open-data-ai-analytics/src/visualization/Dockerfile -t visualization:latest /opt/open-data-ai-analytics
   - docker build -f /opt/open-data-ai-analytics/src/web/Dockerfile -t web:latest /opt/open-data-ai-analytics
 
-  # 5. Import image into k3s containerd
+  # 5. Import all images into k3s containerd
+  - docker save data-load:latest | k3s ctr images import -
+  - docker save data-quality:latest | k3s ctr images import -
+  - docker save data-research:latest | k3s ctr images import -
+  - docker save visualization:latest | k3s ctr images import -
   - docker save web:latest | k3s ctr images import -
 
   # 6. Install ArgoCD

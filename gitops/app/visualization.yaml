@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visualization
+  template:
+    metadata:
+      labels:
+        app: visualization
+    spec:
+      containers:
+        - name: visualization
+          image: visualization:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATA_RAW_PATH
+              value: /app/data/raw/petitions.csv
+            - name: REPORTS_FIGURES_PATH
+              value: /app/reports/figures
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: reports
+              mountPath: /app/reports
+      volumes:
+        - name: data
+          hostPath:
+            path: /opt/app-data
+            type: DirectoryOrCreate
+        - name: reports
+          hostPath:
+            path: /opt/app-reports
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: visualization
+  namespace: default
+spec:
+  selector:
+    app: visualization
+  ports:
+    - port: 8000
+      targetPort: 8000

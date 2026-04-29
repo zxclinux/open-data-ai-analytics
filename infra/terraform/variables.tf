@@ -57,6 +57,18 @@ variable "argocd_port" {
   default     = 30443
 }
 
+variable "prometheus_port" {
+  description = "Prometheus NodePort for UI access."
+  type        = number
+  default     = 30090
+}
+
+variable "grafana_port" {
+  description = "Grafana NodePort for UI access."
+  type        = number
+  default     = 30300
+}
+
 variable "repo_url" {
   description = "Git repository URL cloned by cloud-init."
   type        = string

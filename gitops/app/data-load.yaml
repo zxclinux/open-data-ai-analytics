@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-load
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-load
+  template:
+    metadata:
+      labels:
+        app: data-load
+    spec:
+      containers:
+        - name: data-load
+          image: data-load:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: OUTPUT_PATH
+              value: /app/data/raw/petitions.csv
+            - name: DB_PATH
+              value: /app/data/petitions.db
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+      volumes:
+        - name: data
+          hostPath:
+            path: /opt/app-data
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-load
+  namespace: default
+spec:
+  selector:
+    app: data-load
+  ports:
+    - port: 8000
+      targetPort: 8000
