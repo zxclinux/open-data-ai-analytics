@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/zxclinux/open-data-ai-analytics.git
-    targetRevision: monitoring
+    targetRevision: main
     path: gitops/app
   destination:
     server: https://kubernetes.default.svc
