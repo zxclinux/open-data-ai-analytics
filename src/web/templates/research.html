@@ -1,23 +1,32 @@
 {% extends "base.html" %}
 {% block title %}Research — Open Data Analytics{% endblock %}
-{% block content %}
-<h1>Data Research</h1>
+{% block page_title %}Research{% endblock %}
 
+{% block content %}
 {% if data.get("error") %}
-  <div class="error">{{ data.error }}</div>
+  <div class="alert alert-error">{{ data.error }}</div>
 {% else %}
 
   <div class="stat-grid">
-    <div class="stat-box"><div class="value">{{ data.rows }}</div><div class="label">Rows analysed</div></div>
+    <div class="stat-box">
+      <div class="value">{{ data.rows }}</div>
+      <div class="label">Rows analysed</div>
+    </div>
     {% if data.duration_stats %}
-    <div class="stat-box"><div class="value">{{ data.duration_stats.median }}</div><div class="label">Median days to answer</div></div>
-    <div class="stat-box"><div class="value">{{ data.duration_stats.count }}</div><div class="label">With answer date</div></div>
+    <div class="stat-box">
+      <div class="value">{{ data.duration_stats.median }}</div>
+      <div class="label">Median days to answer</div>
+    </div>
+    <div class="stat-box">
+      <div class="value">{{ data.duration_stats.count }}</div>
+      <div class="label">With answer date</div>
+    </div>
     {% endif %}
   </div>
 
   {% if data.signatures_distribution.percentiles %}
   <div class="card">
-    <h2>Signatures percentiles</h2>
+    <div class="card-title" style="margin-bottom:.75rem">Signatures percentiles</div>
     <table class="kv-table">
       {% for k, v in data.signatures_distribution.percentiles.items() %}
       <tr><td>{{ k }}</td><td>{{ v }}</td></tr>
@@ -28,43 +37,76 @@
 
   {% if data.signatures_by_kind %}
   <div class="card">
-    <h2>Signatures by kind</h2>
-    <table>
-      <thead><tr><th>Kind</th><th>Petitions</th><th>Total sigs</th><th>Mean</th><th>Median</th></tr></thead>
-      <tbody>
-        {% for r in data.signatures_by_kind %}
-        <tr><td>{{ r.kind }}</td><td>{{ r.petitions }}</td><td>{{ r.total_signatures }}</td><td>{{ r.mean }}</td><td>{{ r.median }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card-title" style="margin-bottom:.75rem">Signatures by kind</div>
+    <div class="overflow-table">
+      <table>
+        <thead>
+          <tr><th>Kind</th><th>Petitions</th><th>Total sigs</th><th>Mean</th><th>Median</th></tr>
+        </thead>
+        <tbody>
+          {% for r in data.signatures_by_kind %}
+          <tr>
+            <td>{{ r.kind }}</td>
+            <td style="text-align:right">{{ r.petitions }}</td>
+            <td style="text-align:right;font-weight:600">{{ r.total_signatures }}</td>
+            <td style="text-align:right">{{ r.mean }}</td>
+            <td style="text-align:right">{{ r.median }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   {% endif %}
 
   {% if data.success_rate_by_kind %}
   <div class="card">
-    <h2>Success rate by kind</h2>
-    <table>
-      <thead><tr><th>Kind</th><th>With answer</th><th>Total</th><th>%</th></tr></thead>
-      <tbody>
-        {% for r in data.success_rate_by_kind %}
-        <tr><td>{{ r.kind }}</td><td>{{ r.with_answer }}</td><td>{{ r.total }}</td><td>{{ r.pct }}%</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card-title" style="margin-bottom:.75rem">Success rate by kind</div>
+    <div class="overflow-table">
+      <table>
+        <thead>
+          <tr><th>Kind</th><th>With answer</th><th>Total</th><th>%</th></tr>
+        </thead>
+        <tbody>
+          {% for r in data.success_rate_by_kind %}
+          <tr>
+            <td>{{ r.kind }}</td>
+            <td style="text-align:right">{{ r.with_answer }}</td>
+            <td style="text-align:right">{{ r.total }}</td>
+            <td style="text-align:right;font-weight:600">{{ r.pct }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   {% endif %}
 
   {% if data.top_by_signatures %}
   <div class="card">
-    <h2>Top 10 by signatures</h2>
-    <table>
-      <thead><tr><th>Title</th><th>Signatures</th><th>Status</th></tr></thead>
-      <tbody>
-        {% for r in data.top_by_signatures %}
-        <tr><td>{{ r.title[:80] }}{% if r.title|length > 80 %}&hellip;{% endif %}</td><td>{{ r.signatures }}</td><td>{{ r.status }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="card-title" style="margin-bottom:.75rem">Top 10 by signatures</div>
+    <div class="overflow-table">
+      <table>
+        <thead>
+          <tr><th>Title</th><th>Signatures</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for r in data.top_by_signatures %}
+          <tr>
+            <td>{{ r.title[:80] }}{% if r.title|length > 80 %}&hellip;{% endif %}</td>
+            <td style="text-align:right;font-weight:600">{{ r.signatures }}</td>
+            <td>
+              {% if r.status == 'з відповіддю' %}
+                <span class="badge badge-ok">{{ r.status }}</span>
+              {% else %}
+                <span class="badge badge-no">{{ r.status }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   {% endif %}
 

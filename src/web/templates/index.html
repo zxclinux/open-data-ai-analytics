@@ -1,95 +1,137 @@
 {% extends "base.html" %}
 {% block title %}Home — Open Data Analytics{% endblock %}
-{% block content %}
-<h1>Open Data AI Analytics</h1>
+{% block page_title %}Home{% endblock %}
 
-<div style="display:flex;gap:.8rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap">
+{% block topbar_actions %}
+<div style="display:flex;gap:.5rem;align-items:center">
   <button class="btn btn-green" id="btn-pipeline" onclick="runPipeline()">
-    Download &amp; Load into DB
-    <span class="spinner" id="pipeline-spinner" style="margin-left:.4rem;vertical-align:middle"></span>
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+    </svg>
+    Load Data
+    <span class="spinner" id="pipeline-spinner"></span>
   </button>
-  <button class="btn btn-red" id="btn-clear" onclick="clearDB()">Clear DB</button>
-  <span id="pipeline-status" style="font-size:.88rem;color:#555"></span>
+  <button class="btn btn-ghost btn-sm" id="btn-clear" onclick="clearDB()">Clear DB</button>
+  <span id="pipeline-status" class="status-text"></span>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="nav-cards">
+  <a href="/ui/petitions" class="nav-card">
+    <div class="nav-card-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-card-label">Browse</div>
+      <div class="nav-card-name">Petitions</div>
+    </div>
+  </a>
+  <a href="/ui/quality" class="nav-card">
+    <div class="nav-card-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-card-label">Analyse</div>
+      <div class="nav-card-name">Quality</div>
+    </div>
+  </a>
+  <a href="/ui/research" class="nav-card">
+    <div class="nav-card-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-card-label">Explore</div>
+      <div class="nav-card-name">Research</div>
+    </div>
+  </a>
+  <a href="/ui/charts" class="nav-card">
+    <div class="nav-card-icon">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+    </div>
+    <div>
+      <div class="nav-card-label">Visualise</div>
+      <div class="nav-card-name">Charts</div>
+    </div>
+  </a>
 </div>
 
-<!-- Navigation cards -->
-<div class="stat-grid" style="margin-bottom:1.5rem">
-  <a href="/ui/petitions" style="text-decoration:none">
-    <div class="stat-box"><div class="label">Petitions DB</div><div class="value">Browse</div></div>
-  </a>
-  <a href="/ui/quality" style="text-decoration:none">
-    <div class="stat-box"><div class="label">Data Quality</div><div class="value">Analysis</div></div>
-  </a>
-  <a href="/ui/research" style="text-decoration:none">
-    <div class="stat-box"><div class="label">Data Research</div><div class="value">Insights</div></div>
-  </a>
-  <a href="/ui/charts" style="text-decoration:none">
-    <div class="stat-box"><div class="label">Visualization</div><div class="value">Charts</div></div>
-  </a>
-</div>
-
-<!-- Petitions -->
 <div class="card">
-  <h2>Petitions</h2>
+  <div class="card-header">
+    <span class="card-title">Petitions</span>
+  </div>
   <div class="form-row">
     <div class="form-group">
-      <label>limit</label>
-      <input type="number" id="pet-limit" value="10" min="1" max="500" style="width:80px">
+      <label>Limit</label>
+      <input type="number" id="pet-limit" value="10" min="1" max="500" style="width:72px">
     </div>
     <div class="form-group">
-      <label>offset</label>
-      <input type="number" id="pet-offset" value="0" min="0" style="width:80px">
+      <label>Offset</label>
+      <input type="number" id="pet-offset" value="0" min="0" style="width:72px">
     </div>
     <button class="btn btn-primary btn-sm" onclick="loadPetitions()">Run</button>
   </div>
-  <div id="pet-result" style="margin-top:1rem"></div>
+  <div id="pet-result"></div>
 </div>
 
-<!-- Top by signatures -->
 <div class="card">
-  <h2>Top by signatures</h2>
+  <div class="card-header">
+    <span class="card-title">Top by Signatures</span>
+  </div>
   <div class="form-row">
     <div class="form-group">
-      <label>n</label>
-      <input type="number" id="top-n" value="10" min="1" max="100" style="width:80px">
+      <label>N</label>
+      <input type="number" id="top-n" value="10" min="1" max="100" style="width:72px">
     </div>
     <button class="btn btn-primary btn-sm" onclick="loadTop()">Run</button>
   </div>
-  <div id="top-result" style="margin-top:1rem"></div>
+  <div id="top-result"></div>
 </div>
 
-<!-- Group by status -->
 <div class="card">
-  <h2>Group by status</h2>
+  <div class="card-header">
+    <span class="card-title">By Status</span>
+  </div>
   <div class="form-row">
     <button class="btn btn-primary btn-sm" onclick="loadStatus()">Run</button>
   </div>
-  <div id="status-result" style="margin-top:1rem"></div>
+  <div id="status-result"></div>
 </div>
 
-<!-- Search -->
 <div class="card">
-  <h2>Search by title</h2>
+  <div class="card-header">
+    <span class="card-title">Search</span>
+  </div>
   <div class="form-row">
     <div class="form-group">
-      <label>query</label>
-      <input type="text" id="search-q" value="" placeholder="ремонт" style="width:200px">
+      <label>Query</label>
+      <input type="text" id="search-q" placeholder="ремонт" style="width:200px">
     </div>
     <div class="form-group">
-      <label>limit</label>
-      <input type="number" id="search-limit" value="20" min="1" max="200" style="width:80px">
+      <label>Limit</label>
+      <input type="number" id="search-limit" value="20" min="1" max="200" style="width:72px">
     </div>
     <button class="btn btn-primary btn-sm" onclick="loadSearch()">Run</button>
   </div>
-  <div id="search-result" style="margin-top:1rem"></div>
+  <div id="search-result"></div>
 </div>
 
-<!-- Chart -->
 <div class="card">
-  <h2>Chart</h2>
+  <div class="card-header">
+    <span class="card-title">Chart Preview</span>
+  </div>
   <div class="form-row">
     <div class="form-group">
-      <label>name</label>
+      <label>Chart</label>
       <select id="chart-name" style="width:200px">
         <option>signatures_dist</option>
         <option>median_by_kind</option>
@@ -100,45 +142,45 @@
       </select>
     </div>
     <div class="form-group">
-      <label>dpi</label>
-      <input type="number" id="chart-dpi" value="120" min="50" max="300" style="width:80px">
+      <label>DPI</label>
+      <input type="number" id="chart-dpi" value="120" min="50" max="300" style="width:72px">
     </div>
-    <button class="btn btn-blue btn-sm" onclick="showChart()">Show</button>
+    <button class="btn btn-ghost btn-sm" onclick="showChart()">Show</button>
   </div>
-  <div id="chart-result" style="margin-top:.8rem"></div>
+  <div id="chart-result"></div>
 </div>
 
-<div id="toast" class="toast"></div>
+{% endblock %}
 
+{% block scripts %}
 <script>
 function qs(id) { return document.getElementById(id).value; }
 function el(id) { return document.getElementById(id); }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-function trunc(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n) + '\u2026' : s; }
+function trunc(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
 
 function statusBadge(s) {
-  if (s === '\u0437 \u0432\u0456\u0434\u043f\u043e\u0432\u0456\u0434\u0434\u044e')
-    return '<span class="badge badge-ok">' + esc(s) + '</span>';
-  return '<span class="badge badge-no">' + esc(s) + '</span>';
+  const ok = s === 'з відповіддю';
+  return '<span class="badge ' + (ok ? 'badge-ok' : 'badge-no') + '">' + esc(s) + '</span>';
 }
 
-function loading(id) { el(id).innerHTML = '<p style="color:#888">Loading\u2026</p>'; }
-function errMsg(id, e) { el(id).innerHTML = '<div class="error">' + esc(String(e)) + '</div>'; }
+function loading(id) { el(id).innerHTML = '<p style="color:var(--text-secondary);font-size:.8rem;padding:.5rem 0">Loading…</p>'; }
+function errMsg(id, e) { el(id).innerHTML = '<div class="alert alert-error">' + esc(String(e)) + '</div>'; }
 
 function petitionsTable(rows, total) {
-  if (!rows.length) return '<p style="color:#888">No data. Run pipeline first.</p>';
-  let h = '<p style="margin-bottom:.5rem;color:#666">Total: <strong>' + total + '</strong></p>';
-  h += '<div style="overflow-x:auto"><table><thead><tr>';
+  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data. Run pipeline first.</p>';
+  let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Total: <strong style="color:var(--text-primary)">' + total + '</strong></p>';
+  h += '<div class="overflow-table"><table><thead><tr>';
   h += '<th>UID</th><th>Kind</th><th>Title</th><th>Signatures</th><th>Status</th><th>Date</th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     h += '<tr>';
-    h += '<td>' + esc(r.uid) + '</td>';
+    h += '<td style="color:var(--text-secondary)">' + esc(r.uid) + '</td>';
     h += '<td>' + esc(r.kind) + '</td>';
     h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
     h += '<td style="text-align:right;font-weight:600">' + esc(r.count) + '</td>';
     h += '<td>' + statusBadge(r.status) + '</td>';
-    h += '<td style="white-space:nowrap">' + esc(r.DateStartPetition || '') + '</td>';
+    h += '<td style="white-space:nowrap;color:var(--text-secondary)">' + esc(r.DateStartPetition || '') + '</td>';
     h += '</tr>';
   }
   h += '</tbody></table></div>';
@@ -146,15 +188,15 @@ function petitionsTable(rows, total) {
 }
 
 function topTable(rows) {
-  if (!rows.length) return '<p style="color:#888">No data.</p>';
-  let h = '<div style="overflow-x:auto"><table><thead><tr>';
+  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data.</p>';
+  let h = '<div class="overflow-table"><table><thead><tr>';
   h += '<th>#</th><th>Title</th><th>Signatures</th><th>Kind</th><th>Status</th>';
   h += '</tr></thead><tbody>';
   rows.forEach((r, i) => {
     h += '<tr>';
-    h += '<td>' + (i + 1) + '</td>';
+    h += '<td style="color:var(--text-secondary)">' + (i + 1) + '</td>';
     h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
-    h += '<td style="text-align:right;font-weight:700;font-size:1.05rem">' + esc(r.count) + '</td>';
+    h += '<td style="text-align:right;font-weight:700">' + esc(r.count) + '</td>';
     h += '<td>' + esc(r.kind) + '</td>';
     h += '<td>' + statusBadge(r.status) + '</td>';
     h += '</tr>';
@@ -164,19 +206,19 @@ function topTable(rows) {
 }
 
 function statusTable(rows) {
-  if (!rows.length) return '<p style="color:#888">No data.</p>';
+  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data.</p>';
   const total = rows.reduce((s, r) => s + r.cnt, 0);
-  let h = '<div style="overflow-x:auto"><table><thead><tr>';
-  h += '<th>Status</th><th>Count</th><th>%</th><th></th>';
+  let h = '<div class="overflow-table"><table><thead><tr>';
+  h += '<th>Status</th><th>Count</th><th>%</th><th style="width:35%"></th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     const pct = total ? (100 * r.cnt / total).toFixed(1) : 0;
     h += '<tr>';
     h += '<td>' + statusBadge(r.status) + '</td>';
     h += '<td style="text-align:right;font-weight:600">' + r.cnt + '</td>';
-    h += '<td style="text-align:right">' + pct + '%</td>';
-    h += '<td style="width:40%"><div style="background:#e0e0e0;border-radius:3px;height:18px;overflow:hidden">';
-    h += '<div style="background:#4fc3f7;height:100%;width:' + pct + '%;border-radius:3px"></div>';
+    h += '<td style="text-align:right;color:var(--text-secondary)">' + pct + '%</td>';
+    h += '<td><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden">';
+    h += '<div style="background:var(--accent);height:100%;width:' + pct + '%;border-radius:3px"></div>';
     h += '</div></td>';
     h += '</tr>';
   }
@@ -185,14 +227,14 @@ function statusTable(rows) {
 }
 
 function searchTable(rows) {
-  if (!rows.length) return '<p style="color:#888">No results found.</p>';
-  let h = '<p style="margin-bottom:.5rem;color:#666">Found: <strong>' + rows.length + '</strong></p>';
-  h += '<div style="overflow-x:auto"><table><thead><tr>';
+  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No results found.</p>';
+  let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Found: <strong style="color:var(--text-primary)">' + rows.length + '</strong></p>';
+  h += '<div class="overflow-table"><table><thead><tr>';
   h += '<th>UID</th><th>Title</th><th>Signatures</th><th>Kind</th><th>Status</th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     h += '<tr>';
-    h += '<td>' + esc(r.uid) + '</td>';
+    h += '<td style="color:var(--text-secondary)">' + esc(r.uid) + '</td>';
     h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
     h += '<td style="text-align:right;font-weight:600">' + esc(r.count) + '</td>';
     h += '<td>' + esc(r.kind) + '</td>';
@@ -235,7 +277,7 @@ async function loadStatus() {
 
 async function loadSearch() {
   const q = qs('search-q');
-  if (!q) { el('search-result').innerHTML = '<p style="color:#c62828">Enter a search query.</p>'; return; }
+  if (!q) { el('search-result').innerHTML = '<div class="alert alert-error">Enter a search query.</div>'; return; }
   loading('search-result');
   try {
     const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&limit=' + qs('search-limit'));
@@ -248,14 +290,14 @@ async function loadSearch() {
 function showChart() {
   const name = qs('chart-name');
   const dpi = qs('chart-dpi');
-  el('chart-result').innerHTML = '<img src="/api/charts/' + name + '?dpi=' + dpi + '" alt="' + name + '" style="max-width:100%;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.1)">';
+  el('chart-result').innerHTML = '<img src="/api/charts/' + name + '?dpi=' + dpi + '" alt="' + name + '" style="max-width:100%;border-radius:var(--radius);margin-top:.5rem">';
 }
 
 function toast(msg, ok) {
   const t = el('toast');
   t.textContent = msg;
   t.className = 'toast show ' + (ok ? 'toast-ok' : 'toast-err');
-  setTimeout(() => t.className = 'toast', 3000);
+  setTimeout(() => { t.className = 'toast'; }, 3000);
 }
 
 async function clearDB() {
@@ -265,15 +307,9 @@ async function clearDB() {
   try {
     const r = await fetch('/api/db', { method: 'DELETE' });
     const d = await r.json();
-    if (r.ok) {
-      toast('Database cleared', true);
-      el('pipeline-status').textContent = 'DB cleared';
-    } else {
-      toast('Error: ' + (d.detail || r.statusText), false);
-    }
-  } catch (e) {
-    toast('Error: ' + e.message, false);
-  }
+    if (r.ok) { toast('Database cleared', true); el('pipeline-status').textContent = 'DB cleared'; }
+    else toast('Error: ' + (d.detail || r.statusText), false);
+  } catch (e) { toast('Error: ' + e.message, false); }
   btn.disabled = false;
 }
 
@@ -283,12 +319,12 @@ async function runPipeline() {
   const status = el('pipeline-status');
   btn.disabled = true;
   spinner.style.display = 'inline-block';
-  status.textContent = 'Downloading & loading\u2026';
+  status.textContent = 'Downloading…';
   try {
     const r = await fetch('/api/pipeline', { method: 'POST' });
     const data = await r.json();
     if (r.ok) {
-      status.textContent = 'Loaded ' + data.rows_loaded + ' rows';
+      status.textContent = data.rows_loaded + ' rows loaded';
       toast('Pipeline complete: ' + data.rows_loaded + ' rows', true);
     } else {
       status.textContent = 'Error: ' + (data.detail || r.statusText);
@@ -296,7 +332,7 @@ async function runPipeline() {
     }
   } catch (e) {
     status.textContent = 'Error: ' + e.message;
-    toast('Pipeline failed: ' + e.message, false);
+    toast('Failed: ' + e.message, false);
   }
   btn.disabled = false;
   spinner.style.display = 'none';

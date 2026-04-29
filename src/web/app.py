@@ -27,7 +27,7 @@ async def index(request: Request):
     return templates.TemplateResponse(
         name="index.html",
         request=request,
-        context={"request": request},
+        context={"request": request, "active_page": "home"},
     )
 
 
@@ -50,6 +50,7 @@ async def ui_petitions(request: Request,
             "total": total,
             "page": page,
             "limit": limit,
+            "active_page": "petitions",
         },
     )
 
@@ -65,7 +66,7 @@ async def ui_quality(request: Request):
     return templates.TemplateResponse(
         name="quality.html",
         request=request,
-        context={"request": request, "data": data},
+        context={"request": request, "data": data, "active_page": "quality"},
     )
 
 
@@ -80,7 +81,7 @@ async def ui_research(request: Request):
     return templates.TemplateResponse(
         name="research.html",
         request=request,
-        context={"request": request, "data": data},
+        context={"request": request, "data": data, "active_page": "research"},
     )
 
 
@@ -95,7 +96,7 @@ async def ui_charts(request: Request):
     return templates.TemplateResponse(
         name="charts.html",
         request=request,
-        context={"request": request, "charts": charts, "viz_url": VIZ_URL},
+        context={"request": request, "charts": charts, "viz_url": VIZ_URL, "active_page": "charts"},
     )
 
 @app.get("/api/petitions")

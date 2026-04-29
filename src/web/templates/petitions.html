@@ -1,43 +1,50 @@
 {% extends "base.html" %}
 {% block title %}Petitions — Open Data Analytics{% endblock %}
-{% block content %}
-<h1>Petitions <span style="font-size:.9rem;color:#666">({{ total }} total)</span></h1>
+{% block page_title %}Petitions <span style="font-size:.8rem;font-weight:400;color:var(--text-secondary);margin-left:.5rem">{{ total }} total</span>{% endblock %}
 
-<div class="card">
-  <table>
-    <thead>
-      <tr><th>#</th><th>Kind</th><th>Title</th><th>Signatures</th><th>Status</th><th>Date</th></tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr>
-        <td>{{ r.uid }}</td>
-        <td>{{ r.kind }}</td>
-        <td>{{ r.title[:80] }}{% if r.title|length > 80 %}&hellip;{% endif %}</td>
-        <td>{{ r.count }}</td>
-        <td>
-          {% if r.status == 'з відповіддю' %}
-            <span class="badge badge-ok">{{ r.status }}</span>
-          {% else %}
-            <span class="badge badge-no">{{ r.status }}</span>
-          {% endif %}
-        </td>
-        <td>{{ r.DateStartPetition }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+{% block content %}
+<div class="card" style="padding:0;overflow:hidden">
+  <div class="overflow-table">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Kind</th>
+          <th>Title</th>
+          <th style="text-align:right">Signatures</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td style="color:var(--text-secondary)">{{ r.uid }}</td>
+          <td>{{ r.kind }}</td>
+          <td>{{ r.title[:80] }}{% if r.title|length > 80 %}&hellip;{% endif %}</td>
+          <td style="text-align:right;font-weight:600">{{ r.count }}</td>
+          <td>
+            {% if r.status == 'з відповіддю' %}
+              <span class="badge badge-ok">{{ r.status }}</span>
+            {% else %}
+              <span class="badge badge-no">{{ r.status }}</span>
+            {% endif %}
+          </td>
+          <td style="white-space:nowrap;color:var(--text-secondary)">{{ r.DateStartPetition }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% set pages = (total / limit) | round(0, 'ceil') | int %}
   {% if pages > 1 %}
-  <div class="pagination">
-    {% for p in range(1, pages + 1) %}
-      {% if p == page %}
-        <a class="current" href="?page={{ p }}&limit={{ limit }}">{{ p }}</a>
-      {% else %}
-        <a href="?page={{ p }}&limit={{ limit }}">{{ p }}</a>
-      {% endif %}
-    {% endfor %}
+  <div style="padding:1rem 1.5rem;border-top:1px solid var(--border)">
+    <div class="pagination">
+      {% for p in range(1, pages + 1) %}
+        <a {% if p == page %}class="current"{% endif %} href="?page={{ p }}&limit={{ limit }}">{{ p }}</a>
+      {% endfor %}
+    </div>
   </div>
   {% endif %}
 </div>

@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Charts — Open Data Analytics{% endblock %}
-{% block content %}
-<h1>Visualization</h1>
+{% block page_title %}Charts{% endblock %}
 
+{% block content %}
 {% if not charts %}
-  <div class="error">Visualization service unavailable or no charts found.</div>
+  <div class="alert alert-error">Visualization service unavailable or no charts found.</div>
 {% else %}
   <div class="chart-grid">
     {% for name in charts %}
-    <div class="card" style="padding:.8rem">
-      <h3 style="margin-bottom:.5rem">{{ name }}</h3>
+    <div class="card" style="padding:1rem">
+      <div class="card-title" style="margin-bottom:.75rem">{{ name }}</div>
       <img src="/api/charts/{{ name }}" alt="{{ name }}" loading="lazy">
     </div>
     {% endfor %}
