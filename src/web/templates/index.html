@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Home — Open Data Analytics{% endblock %}
-{% block page_title %}Home{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block topbar_actions %}
 <div style="display:flex;gap:.5rem;align-items:center">
@@ -18,143 +18,87 @@
 
 {% block content %}
 
-<div class="nav-cards">
-  <a href="/ui/petitions" class="nav-card">
-    <div class="nav-card-icon">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-      </svg>
-    </div>
-    <div>
-      <div class="nav-card-label">Browse</div>
-      <div class="nav-card-name">Petitions</div>
-    </div>
-  </a>
-  <a href="/ui/quality" class="nav-card">
-    <div class="nav-card-icon">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-      </svg>
-    </div>
-    <div>
-      <div class="nav-card-label">Analyse</div>
-      <div class="nav-card-name">Quality</div>
-    </div>
-  </a>
-  <a href="/ui/research" class="nav-card">
-    <div class="nav-card-icon">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-    </div>
-    <div>
-      <div class="nav-card-label">Explore</div>
-      <div class="nav-card-name">Research</div>
-    </div>
-  </a>
-  <a href="/ui/charts" class="nav-card">
-    <div class="nav-card-icon">
-      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-      </svg>
-    </div>
-    <div>
-      <div class="nav-card-label">Visualise</div>
-      <div class="nav-card-name">Charts</div>
-    </div>
-  </a>
+<!-- ── Petitions ─────────────────────────────────────────────────── -->
+<div class="card" style="padding:0;overflow:hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border)">
+    <span class="card-title" style="margin:0">Petitions</span>
+    <span id="pet-total" style="font-size:.78rem;color:var(--text-secondary)"></span>
+  </div>
+  <div id="pet-result" style="min-height:120px"></div>
+  <div id="pet-pagination" style="padding:.875rem 1.5rem;border-top:1px solid var(--border);display:none"></div>
 </div>
 
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Petitions</span>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>Limit</label>
-      <input type="number" id="pet-limit" value="10" min="1" max="500" style="width:72px">
-    </div>
-    <div class="form-group">
-      <label>Offset</label>
-      <input type="number" id="pet-offset" value="0" min="0" style="width:72px">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="loadPetitions()">Run</button>
-  </div>
-  <div id="pet-result"></div>
-</div>
+<!-- ── Two-column row ─────────────────────────────────────────────── -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
 
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Top by Signatures</span>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>N</label>
-      <input type="number" id="top-n" value="10" min="1" max="100" style="width:72px">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="loadTop()">Run</button>
-  </div>
-  <div id="top-result"></div>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">By Status</span>
-  </div>
-  <div class="form-row">
-    <button class="btn btn-primary btn-sm" onclick="loadStatus()">Run</button>
-  </div>
-  <div id="status-result"></div>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Search</span>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>Query</label>
-      <input type="text" id="search-q" placeholder="ремонт" style="width:200px">
-    </div>
-    <div class="form-group">
-      <label>Limit</label>
-      <input type="number" id="search-limit" value="20" min="1" max="200" style="width:72px">
-    </div>
-    <button class="btn btn-primary btn-sm" onclick="loadSearch()">Run</button>
-  </div>
-  <div id="search-result"></div>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <span class="card-title">Chart Preview</span>
-  </div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>Chart</label>
-      <select id="chart-name" style="width:200px">
-        <option>signatures_dist</option>
-        <option>median_by_kind</option>
-        <option>mean_median_by_kind</option>
-        <option>activity_by_year</option>
-        <option>duration_dist</option>
-        <option>status_pie</option>
+  <!-- Top by Signatures -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
+      <span class="card-title" style="margin:0">Top Petitions</span>
+      <select id="top-n" onchange="loadTop()" style="font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;background:var(--surface);color:var(--text-primary);cursor:pointer;outline:none">
+        <option value="5">5</option>
+        <option value="10" selected>10</option>
+        <option value="25">25</option>
+        <option value="50">50</option>
       </select>
     </div>
-    <div class="form-group">
-      <label>DPI</label>
-      <input type="number" id="chart-dpi" value="120" min="50" max="300" style="width:72px">
-    </div>
-    <button class="btn btn-ghost btn-sm" onclick="showChart()">Show</button>
+    <div id="top-result" style="min-height:80px"></div>
   </div>
-  <div id="chart-result"></div>
+
+  <!-- By Status -->
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
+      <span class="card-title" style="margin:0">Status Distribution</span>
+    </div>
+    <div id="status-result" style="min-height:80px"></div>
+  </div>
+
+</div>
+
+<!-- ── Search ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-header" style="margin-bottom:.875rem">
+    <span class="card-title">Search</span>
+  </div>
+  <div class="form-row" style="margin-bottom:0">
+    <div class="form-group" style="flex:1;min-width:160px">
+      <label>Topic</label>
+      <input type="text" id="search-q" placeholder="e.g. ремонт доріг" style="width:100%">
+    </div>
+    <div class="form-group">
+      <label>Top results</label>
+      <input type="number" id="search-limit" value="20" min="1" max="200" style="width:80px">
+    </div>
+    <button class="btn btn-primary" onclick="loadSearch()" style="margin-top:auto">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      Search
+    </button>
+  </div>
+  <div id="search-result" style="margin-top:.875rem"></div>
+</div>
+
+<!-- ── Chart ──────────────────────────────────────────────────────── -->
+<div class="card" style="padding:0;overflow:hidden">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border)">
+    <span class="card-title" style="margin:0">Chart</span>
+    <select id="chart-name" onchange="showChart()" style="font-size:.8rem;border:1px solid var(--border);border-radius:6px;padding:.25rem .6rem;background:var(--surface);color:var(--text-primary);cursor:pointer;outline:none">
+      <option value="signatures_dist">Signatures distribution</option>
+      <option value="median_by_kind">Median by kind</option>
+      <option value="mean_median_by_kind">Mean &amp; median by kind</option>
+      <option value="activity_by_year">Activity by year</option>
+      <option value="duration_dist">Duration distribution</option>
+      <option value="status_pie">Status pie</option>
+    </select>
+  </div>
+  <div id="chart-result" style="padding:1.25rem;min-height:100px"></div>
 </div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-function qs(id) { return document.getElementById(id).value; }
 function el(id) { return document.getElementById(id); }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function trunc(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
@@ -164,21 +108,52 @@ function statusBadge(s) {
   return '<span class="badge ' + (ok ? 'badge-ok' : 'badge-no') + '">' + esc(s) + '</span>';
 }
 
-function loading(id) { el(id).innerHTML = '<p style="color:var(--text-secondary);font-size:.8rem;padding:.5rem 0">Loading…</p>'; }
-function errMsg(id, e) { el(id).innerHTML = '<div class="alert alert-error">' + esc(String(e)) + '</div>'; }
+function loading(id) {
+  el(id).innerHTML = '<p style="padding:1rem 1.5rem;color:var(--text-secondary);font-size:.8rem">Loading…</p>';
+}
 
-function petitionsTable(rows, total) {
-  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data. Run pipeline first.</p>';
-  let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Total: <strong style="color:var(--text-primary)">' + total + '</strong></p>';
-  h += '<div class="overflow-table"><table><thead><tr>';
-  h += '<th>UID</th><th>Kind</th><th>Title</th><th>Signatures</th><th>Status</th><th>Date</th>';
+function errMsg(id, e) {
+  el(id).innerHTML = '<div style="padding:1rem 1.5rem"><div class="alert alert-error">' + esc(String(e)) + '</div></div>';
+}
+
+// ── Petitions ──────────────────────────────────────────────────────
+
+const PET_LIMIT = 10;
+let petPage = 1;
+
+async function loadPetitions(page) {
+  page = page || 1;
+  petPage = page;
+  loading('pet-result');
+  el('pet-pagination').style.display = 'none';
+  const offset = (page - 1) * PET_LIMIT;
+  try {
+    const r = await fetch('/api/petitions?limit=' + PET_LIMIT + '&offset=' + offset);
+    const d = await r.json();
+    if (d.detail) throw d.detail;
+    const rows = d.data || [];
+    const total = d.total || 0;
+    el('pet-total').textContent = total.toLocaleString() + ' total';
+    el('pet-result').innerHTML = petitionsTable(rows);
+    const totalPages = Math.ceil(total / PET_LIMIT);
+    if (totalPages > 1) {
+      el('pet-pagination').style.display = 'block';
+      el('pet-pagination').innerHTML = renderPagination(page, totalPages, 'loadPetitions');
+    }
+  } catch (e) { errMsg('pet-result', e); }
+}
+
+function petitionsTable(rows) {
+  if (!rows.length) return '<p style="padding:1rem 1.5rem;color:var(--text-secondary);font-size:.8rem">No data. Click "Load Data" to fetch petitions.</p>';
+  let h = '<div class="overflow-table"><table><thead><tr>';
+  h += '<th style="width:80px">UID</th><th>Kind</th><th>Title</th><th style="text-align:right">Signatures</th><th>Status</th><th>Date</th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     h += '<tr>';
     h += '<td style="color:var(--text-secondary)">' + esc(r.uid) + '</td>';
     h += '<td>' + esc(r.kind) + '</td>';
-    h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
-    h += '<td style="text-align:right;font-weight:600">' + esc(r.count) + '</td>';
+    h += '<td>' + esc(trunc(r.title, 72)) + '</td>';
+    h += '<td style="text-align:right;font-weight:600">' + Number(r.count).toLocaleString() + '</td>';
     h += '<td>' + statusBadge(r.status) + '</td>';
     h += '<td style="white-space:nowrap;color:var(--text-secondary)">' + esc(r.DateStartPetition || '') + '</td>';
     h += '</tr>';
@@ -187,83 +162,59 @@ function petitionsTable(rows, total) {
   return h;
 }
 
+function renderPagination(current, total, fn) {
+  let pages = [];
+  if (total <= 9) {
+    for (let i = 1; i <= total; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (current > 3) pages.push('…');
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+    if (current < total - 2) pages.push('…');
+    pages.push(total);
+  }
+  let h = '<div class="pagination">';
+  if (current > 1) h += '<a onclick="' + fn + '(' + (current - 1) + ')" style="cursor:pointer">← Prev</a>';
+  for (const p of pages) {
+    if (p === '…') h += '<span style="padding:.3rem .4rem;color:var(--text-secondary);font-size:.8rem">…</span>';
+    else if (p === current) h += '<a class="current">' + p + '</a>';
+    else h += '<a onclick="' + fn + '(' + p + ')" style="cursor:pointer">' + p + '</a>';
+  }
+  if (current < total) h += '<a onclick="' + fn + '(' + (current + 1) + ')" style="cursor:pointer">Next →</a>';
+  h += '</div>';
+  return h;
+}
+
+// ── Top by Signatures ──────────────────────────────────────────────
+
+async function loadTop() {
+  const n = el('top-n').value;
+  loading('top-result');
+  try {
+    const r = await fetch('/api/top?n=' + n);
+    const d = await r.json();
+    if (d.detail) throw d.detail;
+    el('top-result').innerHTML = topTable(d.data || []);
+  } catch (e) { errMsg('top-result', e); }
+}
+
 function topTable(rows) {
-  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data.</p>';
+  if (!rows.length) return '<p style="padding:1rem 1.25rem;color:var(--text-secondary);font-size:.8rem">No data.</p>';
   let h = '<div class="overflow-table"><table><thead><tr>';
-  h += '<th>#</th><th>Title</th><th>Signatures</th><th>Kind</th><th>Status</th>';
+  h += '<th style="width:32px">#</th><th>Title</th><th style="text-align:right">Signatures</th>';
   h += '</tr></thead><tbody>';
   rows.forEach((r, i) => {
     h += '<tr>';
     h += '<td style="color:var(--text-secondary)">' + (i + 1) + '</td>';
-    h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
-    h += '<td style="text-align:right;font-weight:700">' + esc(r.count) + '</td>';
-    h += '<td>' + esc(r.kind) + '</td>';
-    h += '<td>' + statusBadge(r.status) + '</td>';
+    h += '<td>' + esc(trunc(r.title, 60)) + '</td>';
+    h += '<td style="text-align:right;font-weight:700">' + Number(r.count).toLocaleString() + '</td>';
     h += '</tr>';
   });
   h += '</tbody></table></div>';
   return h;
 }
 
-function statusTable(rows) {
-  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No data.</p>';
-  const total = rows.reduce((s, r) => s + r.cnt, 0);
-  let h = '<div class="overflow-table"><table><thead><tr>';
-  h += '<th>Status</th><th>Count</th><th>%</th><th style="width:35%"></th>';
-  h += '</tr></thead><tbody>';
-  for (const r of rows) {
-    const pct = total ? (100 * r.cnt / total).toFixed(1) : 0;
-    h += '<tr>';
-    h += '<td>' + statusBadge(r.status) + '</td>';
-    h += '<td style="text-align:right;font-weight:600">' + r.cnt + '</td>';
-    h += '<td style="text-align:right;color:var(--text-secondary)">' + pct + '%</td>';
-    h += '<td><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden">';
-    h += '<div style="background:var(--accent);height:100%;width:' + pct + '%;border-radius:3px"></div>';
-    h += '</div></td>';
-    h += '</tr>';
-  }
-  h += '</tbody></table></div>';
-  return h;
-}
-
-function searchTable(rows) {
-  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No results found.</p>';
-  let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Found: <strong style="color:var(--text-primary)">' + rows.length + '</strong></p>';
-  h += '<div class="overflow-table"><table><thead><tr>';
-  h += '<th>UID</th><th>Title</th><th>Signatures</th><th>Kind</th><th>Status</th>';
-  h += '</tr></thead><tbody>';
-  for (const r of rows) {
-    h += '<tr>';
-    h += '<td style="color:var(--text-secondary)">' + esc(r.uid) + '</td>';
-    h += '<td>' + esc(trunc(r.title, 70)) + '</td>';
-    h += '<td style="text-align:right;font-weight:600">' + esc(r.count) + '</td>';
-    h += '<td>' + esc(r.kind) + '</td>';
-    h += '<td>' + statusBadge(r.status) + '</td>';
-    h += '</tr>';
-  }
-  h += '</tbody></table></div>';
-  return h;
-}
-
-async function loadPetitions() {
-  loading('pet-result');
-  try {
-    const r = await fetch('/api/petitions?limit=' + qs('pet-limit') + '&offset=' + qs('pet-offset'));
-    const d = await r.json();
-    if (d.detail) throw d.detail;
-    el('pet-result').innerHTML = petitionsTable(d.data || [], d.total || 0);
-  } catch (e) { errMsg('pet-result', e); }
-}
-
-async function loadTop() {
-  loading('top-result');
-  try {
-    const r = await fetch('/api/top?n=' + qs('top-n'));
-    const d = await r.json();
-    if (d.detail) throw d.detail;
-    el('top-result').innerHTML = topTable(d.data || []);
-  } catch (e) { errMsg('top-result', e); }
-}
+// ── By Status ──────────────────────────────────────────────────────
 
 async function loadStatus() {
   loading('status-result');
@@ -275,23 +226,69 @@ async function loadStatus() {
   } catch (e) { errMsg('status-result', e); }
 }
 
+function statusTable(rows) {
+  if (!rows.length) return '<p style="padding:1rem 1.25rem;color:var(--text-secondary);font-size:.8rem">No data.</p>';
+  const total = rows.reduce((s, r) => s + r.cnt, 0);
+  let h = '<div style="padding:.75rem 1.25rem;display:flex;flex-direction:column;gap:.625rem">';
+  for (const r of rows) {
+    const pct = total ? (100 * r.cnt / total).toFixed(1) : 0;
+    h += '<div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem">';
+    h += '<span style="font-size:.8125rem">' + statusBadge(r.status) + '</span>';
+    h += '<span style="font-size:.78rem;color:var(--text-secondary)">' + Number(r.cnt).toLocaleString() + ' &nbsp;·&nbsp; ' + pct + '%</span>';
+    h += '</div>';
+    h += '<div style="background:var(--border);border-radius:4px;height:5px;overflow:hidden">';
+    h += '<div style="background:var(--accent);height:100%;width:' + pct + '%;border-radius:4px;transition:width .4s ease"></div>';
+    h += '</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+// ── Search ─────────────────────────────────────────────────────────
+
 async function loadSearch() {
-  const q = qs('search-q');
-  if (!q) { el('search-result').innerHTML = '<div class="alert alert-error">Enter a search query.</div>'; return; }
+  const q = el('search-q').value.trim();
+  if (!q) { el('search-result').innerHTML = '<div class="alert alert-error" style="margin-top:.5rem">Enter a topic to search.</div>'; return; }
   loading('search-result');
   try {
-    const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&limit=' + qs('search-limit'));
+    const limit = el('search-limit').value;
+    const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&limit=' + limit);
     const d = await r.json();
     if (d.detail) throw d.detail;
     el('search-result').innerHTML = searchTable(d.data || []);
   } catch (e) { errMsg('search-result', e); }
 }
 
-function showChart() {
-  const name = qs('chart-name');
-  const dpi = qs('chart-dpi');
-  el('chart-result').innerHTML = '<img src="/api/charts/' + name + '?dpi=' + dpi + '" alt="' + name + '" style="max-width:100%;border-radius:var(--radius);margin-top:.5rem">';
+el('search-q').addEventListener('keydown', e => { if (e.key === 'Enter') loadSearch(); });
+
+function searchTable(rows) {
+  if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No results found.</p>';
+  let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Found <strong style="color:var(--text-primary)">' + rows.length + '</strong> result' + (rows.length !== 1 ? 's' : '') + '</p>';
+  h += '<div class="overflow-table"><table><thead><tr>';
+  h += '<th>Title</th><th style="text-align:right">Signatures</th><th>Kind</th><th>Status</th>';
+  h += '</tr></thead><tbody>';
+  for (const r of rows) {
+    h += '<tr>';
+    h += '<td>' + esc(trunc(r.title, 72)) + '</td>';
+    h += '<td style="text-align:right;font-weight:600">' + Number(r.count).toLocaleString() + '</td>';
+    h += '<td>' + esc(r.kind) + '</td>';
+    h += '<td>' + statusBadge(r.status) + '</td>';
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
+  return h;
 }
+
+// ── Chart ──────────────────────────────────────────────────────────
+
+function showChart() {
+  const name = el('chart-name').value;
+  el('chart-result').innerHTML = '<img src="/api/charts/' + name + '" alt="' + esc(name) + '" style="max-width:100%;border-radius:var(--radius);display:block">';
+}
+
+// ── Pipeline / DB ──────────────────────────────────────────────────
 
 function toast(msg, ok) {
   const t = el('toast');
@@ -326,6 +323,9 @@ async function runPipeline() {
     if (r.ok) {
       status.textContent = data.rows_loaded + ' rows loaded';
       toast('Pipeline complete: ' + data.rows_loaded + ' rows', true);
+      loadPetitions(1);
+      loadTop();
+      loadStatus();
     } else {
       status.textContent = 'Error: ' + (data.detail || r.statusText);
       toast('Pipeline failed', false);
@@ -337,5 +337,14 @@ async function runPipeline() {
   btn.disabled = false;
   spinner.style.display = 'none';
 }
+
+// ── Init ───────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPetitions(1);
+  loadTop();
+  loadStatus();
+  showChart();
+});
 </script>
 {% endblock %}
