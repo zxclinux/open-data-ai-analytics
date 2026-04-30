@@ -3,17 +3,15 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block topbar_actions %}
-<div style="display:flex;gap:.5rem;align-items:center">
-  <button class="btn btn-green" id="btn-pipeline" onclick="runPipeline()">
-    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-    </svg>
-    Load Data
-    <span class="spinner" id="pipeline-spinner"></span>
-  </button>
-  <button class="btn btn-ghost btn-sm" id="btn-clear" onclick="clearDB()">Clear DB</button>
-  <span id="pipeline-status" class="status-text"></span>
-</div>
+<button class="btn btn-green" id="btn-pipeline" onclick="runPipeline()">
+  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+  </svg>
+  Load Data
+  <span class="spinner" id="pipeline-spinner"></span>
+</button>
+<button class="btn btn-ghost btn-sm" id="btn-clear" onclick="clearDB()">Clear DB</button>
+<span id="pipeline-status" class="status-text"></span>
 {% endblock %}
 
 {% block content %}
@@ -29,18 +27,20 @@
 </div>
 
 <!-- ── Two-column row ─────────────────────────────────────────────── -->
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+<div class="grid-2col">
 
   <!-- Top by Signatures -->
   <div class="card" style="padding:0;overflow:hidden">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border)">
       <span class="card-title" style="margin:0">Top Petitions</span>
-      <select id="top-n" onchange="loadTop()" style="font-size:.78rem;border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem;background:var(--surface);color:var(--text-primary);cursor:pointer;outline:none">
-        <option value="5">5</option>
-        <option value="10" selected>10</option>
-        <option value="25">25</option>
-        <option value="50">50</option>
-      </select>
+      <div class="select-wrap">
+        <select id="top-n" onchange="loadTop()">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+        </select>
+      </div>
     </div>
     <div id="top-result" style="min-height:80px"></div>
   </div>
@@ -61,9 +61,10 @@
     <span class="card-title">Search</span>
   </div>
   <div class="form-row" style="margin-bottom:0">
-    <div class="form-group" style="flex:1;min-width:160px">
+    <div class="form-group" style="flex:1;min-width:160px;position:relative">
       <label>Topic</label>
-      <input type="text" id="search-q" placeholder="e.g. ремонт доріг" style="width:100%">
+      <input type="text" id="search-q" placeholder="e.g. ремонт доріг" style="width:100%" autocomplete="off">
+      <div id="ac-box" class="ac-box" hidden></div>
     </div>
     <div class="form-group">
       <label>Top results</label>
@@ -83,14 +84,16 @@
 <div class="card" style="padding:0;overflow:hidden">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border)">
     <span class="card-title" style="margin:0">Chart</span>
-    <select id="chart-name" onchange="showChart()" style="font-size:.8rem;border:1px solid var(--border);border-radius:6px;padding:.25rem .6rem;background:var(--surface);color:var(--text-primary);cursor:pointer;outline:none">
-      <option value="signatures_dist">Signatures distribution</option>
-      <option value="median_by_kind">Median by kind</option>
-      <option value="mean_median_by_kind">Mean &amp; median by kind</option>
-      <option value="activity_by_year">Activity by year</option>
-      <option value="duration_dist">Duration distribution</option>
-      <option value="status_pie">Status pie</option>
-    </select>
+    <div class="select-wrap">
+      <select id="chart-name" onchange="showChart()">
+        <option value="signatures_dist">Signatures distribution</option>
+        <option value="median_by_kind">Median by kind</option>
+        <option value="mean_median_by_kind">Mean &amp; median by kind</option>
+        <option value="activity_by_year">Activity by year</option>
+        <option value="duration_dist">Duration distribution</option>
+        <option value="status_pie">Status pie</option>
+      </select>
+    </div>
   </div>
   <div id="chart-result" style="padding:1.25rem;min-height:100px"></div>
 </div>
@@ -98,6 +101,39 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+  .ac-box {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    z-index: 200;
+    overflow: hidden;
+  }
+
+  .ac-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s, color 0.1s;
+  }
+
+  .ac-item:last-child { border-bottom: none; }
+
+  .ac-item:hover,
+  .ac-item.ac-active {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+</style>
 <script>
 function el(id) { return document.getElementById(id); }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -261,7 +297,93 @@ async function loadSearch() {
   } catch (e) { errMsg('search-result', e); }
 }
 
-el('search-q').addEventListener('keydown', e => { if (e.key === 'Enter') loadSearch(); });
+// ── Autocomplete ───────────────────────────────────────────────────
+
+(function() {
+  const input = el('search-q');
+  const box   = el('ac-box');
+  let timer   = null;
+  let active  = -1;
+
+  function items() { return box.querySelectorAll('.ac-item'); }
+
+  function hide() {
+    box.setAttribute('hidden', '');
+    active = -1;
+  }
+
+  function setActive(idx) {
+    const els = items();
+    active = Math.max(-1, Math.min(idx, els.length - 1));
+    els.forEach((el, i) => el.classList.toggle('ac-active', i === active));
+    if (active >= 0) els[active].scrollIntoView({ block: 'nearest' });
+  }
+
+  function pick(title) {
+    input.value = title;
+    hide();
+    loadSearch();
+  }
+
+  async function suggest() {
+    const q = input.value.trim();
+    if (q.length < 1) { hide(); return; }
+    try {
+      const r = await fetch('/api/suggest?q=' + encodeURIComponent(q));
+      const d = await r.json();
+      const titles = d.data || [];
+      if (!titles.length) { hide(); return; }
+
+      active = -1;
+      box.innerHTML = titles.map(t =>
+        '<div class="ac-item">' + esc(t) + '</div>'
+      ).join('');
+
+      box.querySelectorAll('.ac-item').forEach(function(item) {
+        item.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          pick(this.textContent);
+        });
+      });
+
+      box.removeAttribute('hidden');
+    } catch(_) { hide(); }
+  }
+
+  input.addEventListener('input', function() {
+    clearTimeout(timer);
+    timer = setTimeout(suggest, 300);
+  });
+
+  input.addEventListener('keydown', function(e) {
+    const els = items();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActive(active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(active - 1);
+    } else if (e.key === 'Enter') {
+      if (active >= 0 && els[active]) {
+        e.preventDefault();
+        pick(els[active].textContent);
+      } else {
+        hide();
+        loadSearch();
+      }
+    } else if (e.key === 'Escape') {
+      hide();
+    }
+  });
+
+  input.addEventListener('blur', function() {
+    setTimeout(hide, 150);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !box.contains(e.target)) hide();
+  });
+})();
 
 function searchTable(rows) {
   if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No results found.</p>';

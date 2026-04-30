@@ -55,6 +55,16 @@ def search_petitions(q: str, limit: int = 50) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def suggest_petitions(q: str, limit: int = 8) -> list[str]:
+    with _conn() as c:
+        rows = c.execute(
+            f"SELECT title FROM {TABLE} "
+            f"WHERE LOWER(title) LIKE LOWER(? || '%') LIMIT ?",
+            (q, limit),
+        ).fetchall()
+    return [r["title"] for r in rows]
+
+
 def drop_table() -> None:
     with _conn() as c:
         c.execute(f"DROP TABLE IF EXISTS {TABLE}")

@@ -8,7 +8,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.web.db_queries import (
     petitions_list, petitions_count, top_petitions,
-    petitions_by_status, search_petitions, drop_table,
+    petitions_by_status, search_petitions, suggest_petitions, drop_table,
 )
 
 DATA_LOAD_URL = os.environ.get("DATA_LOAD_URL", "http://localhost:8001")
@@ -129,6 +129,15 @@ def api_search(q: str = Query(..., min_length=1),
                limit: int = Query(50, ge=1, le=200)):
     try:
         return {"data": search_petitions(q, limit)}
+    except Exception:
+        raise HTTPException(404, "DB not ready.")
+
+
+@app.get("/api/suggest")
+def api_suggest(q: str = Query(..., min_length=1),
+                limit: int = Query(8, ge=1, le=20)):
+    try:
+        return {"data": suggest_petitions(q, limit)}
     except Exception:
         raise HTTPException(404, "DB not ready.")
 
