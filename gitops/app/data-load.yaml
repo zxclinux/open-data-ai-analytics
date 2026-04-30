@@ -24,6 +24,8 @@ spec:
               value: /app/data/raw/petitions.csv
             - name: DB_PATH
               value: /app/data/petitions.db
+            - name: PETITIONS_DIR
+              value: /app/data/petitions
           volumeMounts:
             - name: data
               mountPath: /app/data

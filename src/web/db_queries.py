@@ -65,7 +65,7 @@ def suggest_petitions(q: str, limit: int = 8) -> list[str]:
     return [r["title"] for r in rows]
 
 
-def petition_by_uid(uid: int) -> dict | None:
+def petition_by_uid(uid: int):
     with _conn() as c:
         row = c.execute(
             f"SELECT * FROM {TABLE} WHERE uid = ?", (uid,)

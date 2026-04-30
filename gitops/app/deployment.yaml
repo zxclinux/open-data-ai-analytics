@@ -22,6 +22,8 @@ spec:
           env:
             - name: DB_PATH
               value: /app/data/petitions.db
+            - name: PETITIONS_DIR
+              value: /app/data/petitions
             - name: DATA_LOAD_URL
               value: http://data-load:8000
             - name: QUALITY_URL

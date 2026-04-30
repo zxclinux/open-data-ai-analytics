@@ -43,7 +43,7 @@ def _fetch_one(uid: str, url: str, dest: Path, max_attempts: int) -> str:
     """Download one petition text file; return 'ok', 'skipped', or 'failed:<reason>'."""
     if dest.exists():
         return "skipped"
-    last_exc: Exception | None = None
+    last_exc = None
     for attempt in range(max_attempts):
         try:
             with urlopen(url, timeout=15) as resp:
