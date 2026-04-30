@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Petition #{{ petition.uid }} — Open Data Analytics{% endblock %}
+{% block page_title %}Petition #{{ petition.uid }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="javascript:history.length > 1 ? history.back() : (location.href='/ui/petitions')"
+   class="btn btn-ghost btn-sm">
+  ← Back
+</a>
+{% endblock %}
+
+{% block content %}
+
+{# ── Metadata card ── #}
+<div class="card" style="margin-bottom:1.25rem">
+  <h2 style="font-size:1rem;font-weight:700;line-height:1.5;color:var(--text-primary);margin-bottom:1rem">
+    {{ petition.title }}
+  </h2>
+
+  <div style="display:flex;flex-wrap:wrap;gap:.375rem .75rem;margin-bottom:.875rem">
+    {% if petition.status == 'з відповіддю' %}
+      <span class="badge badge-ok">{{ petition.status }}</span>
+    {% else %}
+      <span class="badge badge-no">{{ petition.status }}</span>
+    {% endif %}
+    <span class="badge" style="background:var(--accent-light);color:var(--accent)">{{ petition.kind }}</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.5rem .75rem">
+    <div>
+      <div style="font-size:.68rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem">Signatures</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary)">{{ petition.count | int | string if petition.count else '—' }}</div>
+    </div>
+    <div>
+      <div style="font-size:.68rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem">Date</div>
+      <div style="font-size:.875rem;color:var(--text-primary)">{{ petition.DateStartPetition or '—' }}</div>
+    </div>
+    <div>
+      <div style="font-size:.68rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem">Creator</div>
+      <div style="font-size:.875rem;color:var(--text-primary)">{{ petition.creator or '—' }}</div>
+    </div>
+    {% if petition.authorityName %}
+    <div>
+      <div style="font-size:.68rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem">Authority</div>
+      <div style="font-size:.875rem;color:var(--text-primary)">{{ petition.authorityName }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Petition text card ── #}
+{% if text_content %}
+<div class="card" style="margin-bottom:1.25rem">
+  <div class="card-title" style="margin-bottom:1rem">Petition Text</div>
+  <div style="
+    font-size:.9rem;
+    line-height:1.8;
+    color:var(--text-primary);
+    white-space:pre-wrap;
+    word-break:break-word;
+    max-width:72ch;
+    font-family:'Inter',system-ui,sans-serif;
+  ">{{ text_content }}</div>
+</div>
+{% else %}
+<div class="alert alert-error" style="margin-bottom:1.25rem">
+  Petition text not found on disk. Run the data pipeline to download petition texts.
+</div>
+{% endif %}
+
+{# ── Official response card ── #}
+{% if petition.answerDate or petition.answerUrl %}
+<div class="card">
+  <div class="card-title" style="margin-bottom:.875rem">Official Response</div>
+  {% if petition.answerDate %}
+  <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:.625rem">{{ petition.answerDate }}</p>
+  {% endif %}
+  {% if petition.answerUrl %}
+  <a href="{{ petition.answerUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost btn-sm">
+    <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+    </svg>
+    Open Official Document
+  </a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

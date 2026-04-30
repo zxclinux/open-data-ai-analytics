@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
@@ -8,8 +9,11 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.web.db_queries import (
     petitions_list, petitions_count, top_petitions,
-    petitions_by_status, search_petitions, suggest_petitions, drop_table,
+    petitions_by_status, search_petitions, suggest_petitions,
+    petition_by_uid, drop_table,
 )
+
+PETITIONS_DIR = Path(os.environ.get("PETITIONS_DIR", "data/petitions")).resolve()
 
 DATA_LOAD_URL = os.environ.get("DATA_LOAD_URL", "http://localhost:8001")
 QUALITY_URL = os.environ.get("QUALITY_URL", "http://localhost:8002")
@@ -98,6 +102,34 @@ async def ui_charts(request: Request):
         request=request,
         context={"request": request, "charts": charts, "viz_url": VIZ_URL, "active_page": "charts"},
     )
+
+@app.get("/ui/petition/{uid}", response_class=HTMLResponse)
+async def ui_petition_text(request: Request, uid: int):
+    try:
+        petition = petition_by_uid(uid)
+    except Exception:
+        raise HTTPException(404, "DB not ready.")
+    if not petition:
+        raise HTTPException(404, "Petition not found.")
+
+    text_content = ""
+    filename = petition.get("text", "") or ""
+    if filename:
+        text_path = PETITIONS_DIR / filename
+        if text_path.exists():
+            text_content = text_path.read_text(encoding="utf-8-sig")
+
+    return templates.TemplateResponse(
+        name="petition_text.html",
+        request=request,
+        context={
+            "request": request,
+            "petition": petition,
+            "text_content": text_content,
+            "active_page": "petitions",
+        },
+    )
+
 
 @app.get("/api/petitions")
 def api_petitions(limit: int = Query(50, ge=1, le=500),

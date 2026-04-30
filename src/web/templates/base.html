@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="uk" data-theme="light">
+<html lang="uk">
 <head>
   <meta charset="utf-8">
+  <!-- Runs before first paint: applies saved theme so there is no flash -->
+  <script>(function(){var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'light');})()</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Open Data Analytics{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -637,10 +639,20 @@
       grid-template-columns: 1fr;
     }
 
-    /* Sidebar open on mobile */
+    /* Sidebar open on mobile — full-screen width on small phones */
     body.sidebar-open .sidebar {
       transform: translateX(0);
-      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      box-shadow: 4px 0 32px rgba(0,0,0,0.28);
+    }
+
+    /* Full-width sidebar on phones (< 480px) */
+    @media (max-width: 479px) {
+      .sidebar { width: 100vw; }
+    }
+
+    /* Capped width on larger mobile / small tablets */
+    @media (min-width: 480px) and (max-width: 1023px) {
+      .sidebar { width: min(320px, 85vw); }
     }
 
     /* Tablet (≥ 640px) */
@@ -794,13 +806,10 @@
     localStorage.setItem('theme', next);
   }
 
-  /* ── Restore persisted preferences ── */
+  /* ── Restore sidebar collapse state (theme is handled by the head script) ── */
   (function() {
-    const theme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
-    if (isDesktop && localStorage.getItem('sidebar-collapsed') === 'true') {
+    if (window.matchMedia('(min-width: 1024px)').matches &&
+        localStorage.getItem('sidebar-collapsed') === 'true') {
       document.body.classList.add('sidebar-collapsed');
     }
   })();

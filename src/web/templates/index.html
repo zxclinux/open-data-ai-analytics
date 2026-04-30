@@ -182,7 +182,7 @@ async function loadPetitions(page) {
 function petitionsTable(rows) {
   if (!rows.length) return '<p style="padding:1rem 1.5rem;color:var(--text-secondary);font-size:.8rem">No data. Click "Load Data" to fetch petitions.</p>';
   let h = '<div class="overflow-table"><table><thead><tr>';
-  h += '<th style="width:80px">UID</th><th>Kind</th><th>Title</th><th style="text-align:right">Signatures</th><th>Status</th><th>Date</th>';
+  h += '<th style="width:80px">UID</th><th>Kind</th><th>Title</th><th style="text-align:right">Signatures</th><th>Status</th><th>Date</th><th></th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     h += '<tr>';
@@ -192,6 +192,7 @@ function petitionsTable(rows) {
     h += '<td style="text-align:right;font-weight:600">' + Number(r.count).toLocaleString() + '</td>';
     h += '<td>' + statusBadge(r.status) + '</td>';
     h += '<td style="white-space:nowrap;color:var(--text-secondary)">' + esc(r.DateStartPetition || '') + '</td>';
+    h += '<td><a href="/ui/petition/' + r.uid + '" class="btn btn-ghost btn-sm">View</a></td>';
     h += '</tr>';
   }
   h += '</tbody></table></div>';
@@ -237,13 +238,14 @@ async function loadTop() {
 function topTable(rows) {
   if (!rows.length) return '<p style="padding:1rem 1.25rem;color:var(--text-secondary);font-size:.8rem">No data.</p>';
   let h = '<div class="overflow-table"><table><thead><tr>';
-  h += '<th style="width:32px">#</th><th>Title</th><th style="text-align:right">Signatures</th>';
+  h += '<th style="width:32px">#</th><th>Title</th><th style="text-align:right">Signatures</th><th></th>';
   h += '</tr></thead><tbody>';
   rows.forEach((r, i) => {
     h += '<tr>';
     h += '<td style="color:var(--text-secondary)">' + (i + 1) + '</td>';
     h += '<td>' + esc(trunc(r.title, 60)) + '</td>';
     h += '<td style="text-align:right;font-weight:700">' + Number(r.count).toLocaleString() + '</td>';
+    h += '<td><a href="/ui/petition/' + r.uid + '" class="btn btn-ghost btn-sm">View</a></td>';
     h += '</tr>';
   });
   h += '</tbody></table></div>';
@@ -389,7 +391,7 @@ function searchTable(rows) {
   if (!rows.length) return '<p style="color:var(--text-secondary);font-size:.8rem">No results found.</p>';
   let h = '<p style="margin-bottom:.6rem;font-size:.8rem;color:var(--text-secondary)">Found <strong style="color:var(--text-primary)">' + rows.length + '</strong> result' + (rows.length !== 1 ? 's' : '') + '</p>';
   h += '<div class="overflow-table"><table><thead><tr>';
-  h += '<th>Title</th><th style="text-align:right">Signatures</th><th>Kind</th><th>Status</th>';
+  h += '<th>Title</th><th style="text-align:right">Signatures</th><th>Kind</th><th>Status</th><th></th>';
   h += '</tr></thead><tbody>';
   for (const r of rows) {
     h += '<tr>';
@@ -397,6 +399,7 @@ function searchTable(rows) {
     h += '<td style="text-align:right;font-weight:600">' + Number(r.count).toLocaleString() + '</td>';
     h += '<td>' + esc(r.kind) + '</td>';
     h += '<td>' + statusBadge(r.status) + '</td>';
+    h += '<td><a href="/ui/petition/' + r.uid + '" class="btn btn-ghost btn-sm">View</a></td>';
     h += '</tr>';
   }
   h += '</tbody></table></div>';

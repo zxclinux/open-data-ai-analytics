@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 
-from src.data_load.service import download_csv, DEFAULT_DATASET_URL, DEFAULT_OUTPUT_PATH
+from src.data_load.service import download_csv, download_petition_texts, DEFAULT_DATASET_URL, DEFAULT_OUTPUT_PATH
 from src.data_load.db_service import load_csv_to_db, query_all, row_count, DB_PATH
 
 app = FastAPI(title="data_load API", version="1.0.0")
@@ -36,7 +36,13 @@ def pipeline(url: str = DEFAULT_DATASET_URL, force: bool = False):
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
     n = load_csv_to_db(csv_path)
-    return {"rows_loaded": n, "csv_path": str(csv_path), "db_path": str(DB_PATH)}
+    texts = download_petition_texts(csv_path)
+    return {
+        "rows_loaded": n,
+        "csv_path": str(csv_path),
+        "db_path": str(DB_PATH),
+        "texts": texts,
+    }
 
 
 @app.get("/petitions")
