@@ -1,3 +1,4 @@
+import threading
 from fastapi import FastAPI, HTTPException, Query
 
 from src.data_load.service import download_csv, download_petition_texts, DEFAULT_DATASET_URL, DEFAULT_OUTPUT_PATH
@@ -36,12 +37,16 @@ def pipeline(url: str = DEFAULT_DATASET_URL, force: bool = False):
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
     n = load_csv_to_db(csv_path)
-    texts = download_petition_texts(csv_path)
+    threading.Thread(
+        target=download_petition_texts,
+        args=(csv_path,),
+        daemon=True,
+    ).start()
     return {
         "rows_loaded": n,
         "csv_path": str(csv_path),
         "db_path": str(DB_PATH),
-        "texts": texts,
+        "texts": "downloading in background",
     }
 
 
